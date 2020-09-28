@@ -4,11 +4,17 @@
   <arg name="debug" default="false" />
   <arg name="limited" default="true"/>
   <arg name="controller" default="traj_pos"/> <!-- 'pos' or 'traj_pos' or 'vel' or 'traj_vel'-->
+  <arg name="min_payload" default="0"/>
+  <arg name="max_payload" default="10.0"/>
+  <arg name="max_velocity" default="0.1"/>
 
   <!-- Load the hardware -->
   <include file="$(find ur_bringup)/launch/ur5_bringup.launch">
     <arg name="robot_ip" value="172.22.22.3"/>
     <arg name="limited" value="$(arg limited)"/>
+    <arg name="min_payload" value="$(arg min_payload)"/>
+    <arg name="max_payload" value="$(arg max_payload)"/>
+    <arg name="max_velocity" value="$(arg max_velocity)"/>
   </include>
 
   <!-- Load moveit planner
@@ -24,16 +30,5 @@
 
   <!-- Load the parameters for the algorithm -->
   <rosparam command="load" file="$(find ur_door_opening)/config/door_opening_params.yaml" />
-
-  <!-- Launch the training system
-  <node pkg="ur_door_opening" name="ur_door_opening" type="gazebo_execution.py" output="screen" args="$(arg controller)"/> -->
-
-  <!-- start this controller
-  <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
-  <node name="pos_traj_controller_spawner" pkg="controller_manager" type="controller_manager" args="pos_traj_controller"/> -->
-<!-- ur_shoulder_pan_pos_controller ur_shoulder_lift_pos_controller ur_elbow_pos_controller ur_wrist_1_pos_controller ur_wrist_2_pos_controller ur_wrist_3_pos_controller -->
-
-  <!-- load other controllers
-  <node name="ros_control_controller_manager" pkg="controller_manager" type="spawner" args="load joint_group_position_controller" /> -->
 
 </launch>

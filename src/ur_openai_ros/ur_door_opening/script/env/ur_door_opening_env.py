@@ -232,7 +232,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         rospy.logdebug("ALL SYSTEMS READY")
 
     def check_cartesian_limits(self, action):
-        ee_xyz = Vector3()
+        ee_xyz = Point()
         ee_xyz = self.get_xyz(action)
         print("action.z", ee_xyz[2])
         if self.x_min < ee_xyz[0] and ee_xyz[0] < self.x_max and self.y_min < ee_xyz[1] and ee_xyz[1] < self.y_max and self.z_min < ee_xyz[2] and ee_xyz[2] < self.z_max:
