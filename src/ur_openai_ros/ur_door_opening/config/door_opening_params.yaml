@@ -44,65 +44,62 @@ observations: # Observations you want to use for the learning
   - torque_x
   - torque_y
   - torque_z
+  - static_taxel
+#  - dynamic_taxel
 
 joint_names: ['shoulder_link', 'upper_arm_link', 'forearm_link', 'wrist_1_link', 'wrist_2_link', 'wrist_3_link']
 
-init_joint_pose0:
-  shp: 1.55
-  shl: -1.81
-  elb: 2.26
-  wr1: -2.02
-  wr2: -1.57
-  wr3: 3.11
+#init_joint_pose0:
+#  shp: 1.55
+#  shl: -1.81
+#  elb: 2.26
+#  wr1: -2.02
+#  wr2: -1.57
+#  wr3: 3.11
 
 init_joint_pose1:
-  shp: 1.55
-  shl: -1.81
-  elb: 2.26
-  wr1: -2.02
-  wr2: -1.57
-  wr3: 3.11
+  shp: 1.489002061556269
+  shl: -1.54026052194116
+  elb: 2.5290460531396746
+  wr1: 2.154630265507069
+  wr2: -1.489276956290282
+  wr3: 1.572350908536314
 
 init_joint_pose2:
-  shp: 1.55
-  shl: -1.81
-  elb: 2.26
-  wr1: -2.02
-  wr2: -1.57
-  wr3: 3.11
+  shp: 1.510735130647003
+  shl: -1.3588193568741116
+  elb: 2.3055101287155275
+  wr1: 2.1944348738413386
+  wr2: -1.5100051593089194
+  wr3: 1.570666693504939
 
-eelink_pose_after_rotate:
-  shp: 1.55
-  shl: -1.81
-  elb: 2.26
-  wr1: -2.02
-  wr2: -1.57
-  wr3: 3.11
+far_pose:
+  shp: 1.481720849173733
+  shl: -1.5838111952489484
+  elb: 2.573620990984146
+  wr1: 2.15318143263707
+  wr2: -1.4821512200508096
+  wr3: 1.5707639095373755
 
-eelink_pose_after_pull:
-  shp: 1.55
-  shl: -1.81
-  elb: 2.26
-  wr1: -2.02
-  wr2: -1.57
-  wr3: 3.11
+before_close_pose:
+  shp: 1.5857990679615237
+  shl: -1.5611849786259067
+  elb: 2.550973234715942
+  wr1: 2.151942347671375
+  wr2: -1.5845770347385386
+  wr3: 1.5712500016837836
 
-init_grp_pose1:
-  r_drive: 0
-  l_drive: 0
-  r_follower: 0
-  l_follower: 0
-  r_spring: 0
-  l_spring: 0
+close_door_pose:
+  shp: 1.5154882723836511
+  shl: -1.3170902857536715
+  elb: 2.246372766105985
+  wr1: 2.2117622414530804
+  wr2: -1.5156402257492463
+  wr3: 1.5713472177162202
 
-init_grp_pose2:
-  r_drive: 0.3
-  l_drive: 0.3
-  r_follower: -0.3
-  l_follower: -0.3
-  r_spring: 0.3
-  l_spring: 0.3
-# last time: 0.35NG 0.38, 0.4NG
+init_grp_pose1: 0
+
+init_grp_pose2: 120
 
 joint_limits_array:
   shp_max: 3.14
@@ -118,7 +115,6 @@ joint_limits_array:
   wr3_max: 3.14
   wr3_min: -3.14
 
-
 joint_velocity_limits_array:
   shp_max: 1.0
   shp_min: -1.0
@@ -133,14 +129,13 @@ joint_velocity_limits_array:
   wr3_max: 1.0
   wr3_min: -1.0
 
-
 cartesian_limits:
-  x_max: 0.2
-  x_min: -0.45
-  y_max: 0.7
-  y_min: -0.25
-  z_max: 2
-  z_min: 0.15
+  x_max: -0.08     # 0.2
+  x_min: -0.11   #-0.45
+  y_max: 0.425     # 0.7
+  y_min: 0.35   #-0.25
+  z_max: 0.31       # 2
+  z_min: 0.26    # 0.15
 
 episode_done_criteria:
   - panel_10deg

@@ -160,7 +160,7 @@ class PPOGAEAgent(object):
     def get_action(self, obs): # SAMPLE FROM POLICY
         feed_dict = {self.obs_ph: obs}
         sampled_action = self.sess.run(self.sample_action,feed_dict=feed_dict)
-        return sampled_action[0] / 3 # 100(~20200904), 300(20200905~), 500(~20200909), 2000(20200909~)
+        return sampled_action[0] / 100 # 100(~20200904), 300(20200905~), 500(~20200909), 2000(20200909~)
 # /10:   [action]', array([-0.01992016,  0.10500866,  0.00853405,  0.02726892, -0.12092558, 0.02108609])
 # /500:   [action]', array([0.0010571,  -0.00022959,  -0.00092911,  -0.00055518, -0.0012934, -0.001190])  -> Maxdelta force(6.5, 1.8, 16.7), torque(0.65, 4.4, 0.17)
 # /1000: [action]', array([-1.9920163e-04,  1.0500867e-03,  8.5340682e-05,  2.7268915e-04, -1.2092555e-03,  2.1086067e-04])

@@ -1,0 +1,6 @@
+float64[9] IMUS1
+float64[9] IMUS2
+float64[4] QuaternionsS1
+float64[4] QuaternionsS2
+float64[3] EulerAnglesS1
+float64[3] EulerAnglesS2

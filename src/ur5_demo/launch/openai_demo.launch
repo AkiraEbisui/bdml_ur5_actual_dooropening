@@ -17,6 +17,10 @@
     <arg name="max_velocity" value="$(arg max_velocity)"/>
   </include>
 
+  <!-- Load the robotiq sensor -->
+  <include file="$(find tactilesensors4)/launch/tactilesensors4.launch">
+  </include>
+
   <!-- Load moveit planner
   <include file="$(find ur5_moveit_config)/launch/ur5_moveit_planning_execution.launch">
     <arg name="limited" value="true"/>

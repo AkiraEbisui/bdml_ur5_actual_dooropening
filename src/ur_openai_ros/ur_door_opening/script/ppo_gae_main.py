@@ -22,7 +22,7 @@ from env.ur_door_opening_env import URSimDoorOpening
 from algorithm.ppo_gae import PPOGAEAgent
 
 seed = 0
-obs_dim = 21 # env.observation_space.shape[0] # have to change number of hdim
+obs_dim = 77 # env.observation_space.shape[0] # have to change number of hdim
 n_act = 6 #config: act_dim #env.action_space.n
 agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=64, policy_lr=1e-4, value_lr=1e-4, max_std=1.0, clip_range=0.2, seed=seed)
 #agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=obs_dim, policy_lr=3e-3, value_lr=1e-3, max_std=1.0, clip_range=0.2, seed=seed)
@@ -35,7 +35,7 @@ def run_episode(env, animate=False): # Run policy and collect (state, action, re
     observes, actions, rewards, infos = [], [], [], []
     done = False
 
-    n_step = 100 #1000
+    n_step = 3 #1000
     for update in range(n_step):
         obs = np.array(obs)
         obs = obs.astype(np.float32).reshape((1, -1)) # numpy.ndarray (1, num_obs)
@@ -249,6 +249,13 @@ def main():
             print('[{}/{}] return : {:.3f}, value loss : {:.3f}, policy loss : {:.3f}'.format(update,nupdates, np.mean(avg_return_list), np.mean(avg_val_loss_list), np.mean(avg_pol_loss_list)))
             print('The problem is solved with {} episodes'.format(update*episode_size))
             break
+
+
+        try:
+            client.wait_for_result()
+        except KeyboardInterrupt:
+            rospy.signal_shutdown("KeyboardInterrupt")
+            rospy.spin()
 
         #env.close() # rospy.wait_for_service('/pause_physics') -> raise ROSInterruptException("rospy shutdown")
 

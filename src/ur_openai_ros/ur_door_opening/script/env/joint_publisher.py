@@ -20,12 +20,6 @@ class JointPub(object):
 
         if self.current_controller_type == "pos" or self.current_controller_type == "traj_pos":
     	    print ("###### init #####, load_pos_controllers ")			
-#    	    self._ctrl_conn.load_controllers("ur_shoulder_pan_pos_controller")
-#    	    self._ctrl_conn.load_controllers("ur_shoulder_lift_pos_controller")
-#    	    self._ctrl_conn.load_controllers("ur_elbow_pos_controller")
-#    	    self._ctrl_conn.load_controllers("ur_wrist_1_pos_controller")
-#    	    self._ctrl_conn.load_controllers("ur_wrist_2_pos_controller")
-#    	    self._ctrl_conn.load_controllers("ur_wrist_3_pos_controller")
 
     	    self._shoulder_pan_joint_pub = rospy.Publisher('/ur_shoulder_pan_pos_controller/command', Float64, queue_size=1)
     	    self._shoulder_lift_joint_pub = rospy.Publisher('/ur_shoulder_lift_pos_controller/command', Float64, queue_size=1)
@@ -35,12 +29,6 @@ class JointPub(object):
     	    self._wrist_3_joint_pub = rospy.Publisher('/ur_wrist_3_pos_controller/command', Float64, queue_size=1)
         elif self.current_controller_type == "vel" or self.current_controller_type == "traj_vel":
     	    print ("###### init #####, load_vel_controllers ")		
-#    	    self._ctrl_conn.load_controllers("ur_shoulder_pan_vel_controller")
-#    	    self._ctrl_conn.load_controllers("ur_shoulder_lift_vel_controller")
-#    	    self._ctrl_conn.load_controllers("ur_elbow_vel_controller")
-#    	    self._ctrl_conn.load_controllers("ur_wrist_1_vel_controller")
-#    	    self._ctrl_conn.load_controllers("ur_wrist_2_vel_controller")
-#    	    self._ctrl_conn.load_controllers("ur_wrist_3_vel_controller")
 
     	    self._shoulder_pan_joint_pub = rospy.Publisher('/ur_shoulder_pan_vel_controller/command', Float64, queue_size=1)
     	    self._shoulder_lift_joint_pub = rospy.Publisher('/ur_shoulder_lift_vel_controller/command', Float64, queue_size=1)

@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="tactilesensors4" type="PollData4" name="PollData4" required="true" output="screen">
+  </node>
+</launch>

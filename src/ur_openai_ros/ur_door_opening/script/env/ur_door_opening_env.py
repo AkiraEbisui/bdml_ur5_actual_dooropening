@@ -24,8 +24,8 @@ from gazebo_msgs.srv import GetWorldProperties
 from gazebo_msgs.msg import LinkStates 
 
 # For reset GAZEBO simultor
-from gazebo_connection import GazeboConnection
-from controllers_connection import ControllersConnection
+#from gazebo_connection import GazeboConnection
+#from controllers_connection import ControllersConnection
 
 # ROS msg
 from geometry_msgs.msg import Pose, Point, Quaternion, Vector3, WrenchStamped
@@ -33,6 +33,7 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import String
 from std_srvs.srv import SetBool, SetBoolResponse, SetBoolRequest
 from std_srvs.srv import Empty
+from tactilesensors4.msg import StaticData, Dynamic
 
 # Gym
 import gym
@@ -47,8 +48,7 @@ from env import robot_gazebo_env_goal
 from env.ur_setups import setups
 from env import ur_utils
 
-#from ur5_interface_for_door import UR5Interface
-#from robotiq_interface_for_door import RobotiqInterface
+from robotiq_interface_for_door import RobotiqInterface
 
 rospy.loginfo("register...")
 #register the training environment in the gym as an available one
@@ -65,6 +65,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # Subscribe joint state and target pose
         rospy.Subscriber("/wrench", WrenchStamped, self.wrench_stamped_callback)
         rospy.Subscriber("/joint_states", JointState, self.joints_state_callback)
+        rospy.Subscriber("/TactileSensor4/StaticData", StaticData, self.tactile_static_callback)
+        rospy.Subscriber("/TactileSensor4/Dynamic", Dynamic, self.tactile_dynamic_callback)
 
         # Gets training parameters from param server
         self.desired_pose = Pose()
@@ -108,13 +110,13 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.z_max = rospy.get_param("/cartesian_limits/z_max")
         self.z_min = rospy.get_param("/cartesian_limits/z_min")
 
-        shp_init_value0 = rospy.get_param("/init_joint_pose0/shp")
-        shl_init_value0 = rospy.get_param("/init_joint_pose0/shl")
-        elb_init_value0 = rospy.get_param("/init_joint_pose0/elb")
-        wr1_init_value0 = rospy.get_param("/init_joint_pose0/wr1")
-        wr2_init_value0 = rospy.get_param("/init_joint_pose0/wr2")
-        wr3_init_value0 = rospy.get_param("/init_joint_pose0/wr3")
-        self.init_joint_pose0 = [shp_init_value0, shl_init_value0, elb_init_value0, wr1_init_value0, wr2_init_value0, wr3_init_value0]
+#        shp_init_value0 = rospy.get_param("/init_joint_pose0/shp")
+#        shl_init_value0 = rospy.get_param("/init_joint_pose0/shl")
+#        elb_init_value0 = rospy.get_param("/init_joint_pose0/elb")
+#        wr1_init_value0 = rospy.get_param("/init_joint_pose0/wr1")
+#        wr2_init_value0 = rospy.get_param("/init_joint_pose0/wr2")
+#        wr3_init_value0 = rospy.get_param("/init_joint_pose0/wr3")
+#        self.init_joint_pose0 = [shp_init_value0, shl_init_value0, elb_init_value0, wr1_init_value0, wr2_init_value0, wr3_init_value0]
 
         shp_init_value1 = rospy.get_param("/init_joint_pose1/shp")
         shl_init_value1 = rospy.get_param("/init_joint_pose1/shl")
@@ -132,21 +134,29 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         wr3_init_value2 = rospy.get_param("/init_joint_pose2/wr3")
         self.init_joint_pose2 = [shp_init_value2, shl_init_value2, elb_init_value2, wr1_init_value2, wr2_init_value2, wr3_init_value2]
 
-        shp_after_rotate = rospy.get_param("/eelink_pose_after_rotate/shp")
-        shl_after_rotate = rospy.get_param("/eelink_pose_after_rotate/shl")
-        elb_after_rotate = rospy.get_param("/eelink_pose_after_rotate/elb")
-        wr1_after_rotate = rospy.get_param("/eelink_pose_after_rotate/wr1")
-        wr2_after_rotate = rospy.get_param("/eelink_pose_after_rotate/wr2")
-        wr3_after_rotate = rospy.get_param("/eelink_pose_after_rotate/wr3")
-        self.after_rotate = [shp_after_rotate, shl_after_rotate, elb_after_rotate, wr1_after_rotate, wr2_after_rotate, wr3_after_rotate]
+        shp_far_pose = rospy.get_param("/far_pose/shp")
+        shl_far_pose = rospy.get_param("/far_pose/shl")
+        elb_far_pose = rospy.get_param("/far_pose/elb")
+        wr1_far_pose = rospy.get_param("/far_pose/wr1")
+        wr2_far_pose = rospy.get_param("/far_pose/wr2")
+        wr3_far_pose = rospy.get_param("/far_pose/wr3")
+        self.far_pose = [shp_far_pose, shl_far_pose, elb_far_pose, wr1_far_pose, wr2_far_pose, wr3_far_pose]
 
-        shp_after_pull = rospy.get_param("/eelink_pose_after_pull/shp")
-        shl_after_pull = rospy.get_param("/eelink_pose_after_pull/shl")
-        elb_after_pull = rospy.get_param("/eelink_pose_after_pull/elb")
-        wr1_after_pull = rospy.get_param("/eelink_pose_after_pull/wr1")
-        wr2_after_pull = rospy.get_param("/eelink_pose_after_pull/wr2")
-        wr3_after_pull = rospy.get_param("/eelink_pose_after_pull/wr3")
-        self.after_pull = [shp_after_pull, shl_after_pull, elb_after_pull, wr1_after_pull, wr2_after_pull, wr3_after_pull]
+        shp_before_close_pose = rospy.get_param("/before_close_pose/shp")
+        shl_before_close_pose = rospy.get_param("/before_close_pose/shl")
+        elb_before_close_pose = rospy.get_param("/before_close_pose/elb")
+        wr1_before_close_pose = rospy.get_param("/before_close_pose/wr1")
+        wr2_before_close_pose = rospy.get_param("/before_close_pose/wr2")
+        wr3_before_close_pose = rospy.get_param("/before_close_pose/wr3")
+        self.before_close_pose = [shp_before_close_pose, shl_before_close_pose, elb_before_close_pose, wr1_before_close_pose, wr2_before_close_pose, wr3_before_close_pose]
+
+        shp_close_door_pose = rospy.get_param("/close_door_pose/shp")
+        shl_close_door_pose = rospy.get_param("/close_door_pose/shl")
+        elb_close_door_pose = rospy.get_param("/close_door_pose/elb")
+        wr1_close_door_pose = rospy.get_param("/close_door_pose/wr1")
+        wr2_close_door_pose = rospy.get_param("/close_door_pose/wr2")
+        wr3_close_door_pose = rospy.get_param("/close_door_pose/wr3")
+        self.close_door_pose = [shp_close_door_pose, shl_close_door_pose, elb_close_door_pose, wr1_close_door_pose, wr2_close_door_pose, wr3_close_door_pose]
 
         # Fill in the Done Episode Criteria list
         self.episode_done_criteria = rospy.get_param("/episode_done_criteria")
@@ -169,6 +179,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.link_state = LinkStates()
         self.wrench_stamped = WrenchStamped()
         self.joints_state = JointState()
+        self.tactile_static = StaticData()
+        self.tactile_dynamic = Dynamic()
         self.end_effector = Point() 
         self.previous_action =[]
         self.counter = 0
@@ -183,9 +195,15 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         # Gym interface and action
         self.action_space = spaces.Discrete(6)
-        self.observation_space = 21 #np.arange(self.get_observations().shape[0])
+        self.observation_space = 77 #np.arange(self.get_observations().shape[0])
         self.reward_range = (-np.inf, np.inf)
         self._seed()
+
+        # Gripper interface
+        self.gripper = RobotiqInterface()
+
+        # Joint trajectory publisher
+        self.jointpub = JointTrajPub()
 
     def check_stop_flg(self):
         if self.stop_flag is False:
@@ -208,12 +226,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
         
-#    def link_state_callback(self, msg):
-#        self.link_state = msg
-#        self.end_effector = self.link_state.pose[12]
-#        self.imu_link = self.link_state.pose[5]
-#        self.door = self.link_state.pose[2]
-
     def check_all_systems_ready(self):
         """
         We check that all systems are ready
@@ -324,6 +336,12 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
     def wrench_stamped_callback(self,msg):
         self.wrench_stamped = msg
 
+    def tactile_static_callback(self,msg):
+        self.tactile_static = msg
+
+    def tactile_dynamic_callback(self,msg):
+        self.tactile_dynamic = msg
+
     def joint_trajectory(self,msg):
         self.jointtrajectory = msg
 
@@ -336,9 +354,11 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         joint_states = self.joints_state
         self.force = self.wrench_stamped.wrench.force
         self.torque = self.wrench_stamped.wrench.torque
+        static_taxel = self.tactile_static.taxels
+#        dynamic_taxel= tactile_dynamic
+
 #        print("[force]", self.force.x, self.force.y, self.force.z)
 #        print("[torque]", self.torque.x, self.torque.y, self.torque.z)
-
         shp_joint_ang = joint_states.position[0]
         shl_joint_ang = joint_states.position[1]
         elb_joint_ang = joint_states.position[2]
@@ -403,6 +423,17 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 observation.append(self.torque.y)
             elif obs_name == "torque_z":
                 observation.append(self.torque.z)
+            elif obs_name == "static_taxel":
+                for x in range(0, 28):
+                    observation.append(static_taxel[0].values[x])
+                for x in range(0, 28):
+                    observation.append(static_taxel[1].values[x])
+#            elif obs_name == "dynamic_taxel":
+#                observation.append(dynamic_taxel[0].values[x])
+#                for x in range(0, 1):
+#                    observation.append(dynamic_taxel[0].values[x])
+#                for x in range(0, 1):
+#                    observation.append(dynamic_taxel[1].values[x])
             else:
                 raise NameError('Observation Asked does not exist=='+str(obs_name))
 
@@ -440,18 +471,39 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
     # Resets the state of the environment and returns an initial observation.
     def reset(self):
 	# Go to initial position
-        rospy.logdebug("set_init_pose init variable...>>>" + str(self.init_joint_pose0))
-        init_pos0 = self.init_joints_pose(self.init_joint_pose0)
-        self.arr_init_pos0 = np.array(init_pos0, dtype='float32')
-        jointtrajpub = JointTrajPub()
+        rospy.logdebug("set_init_pose init variable...>>>" + str(self.init_joint_pose1))
+        init_pos1 = self.init_joints_pose(self.init_joint_pose1)
+        self.arr_init_pos1 = np.array(init_pos1, dtype='float32')
+        init_pos2 = self.init_joints_pose(self.init_joint_pose2)
+        self.arr_init_pos2 = np.array(init_pos2, dtype='float32')
+        far_pose = self.init_joints_pose(self.far_pose)
+        self.arr_far_pose = np.array(far_pose, dtype='float32')
+        before_close_pose = self.init_joints_pose(self.before_close_pose)
+        self.arr_before_close_pose = np.array(before_close_pose, dtype='float32')
+        close_door_pose = self.init_joints_pose(self.close_door_pose)
+        self.arr_close_door_pose = np.array(close_door_pose, dtype='float32')
 
-#        for update in range(10):
-        jointtrajpub.FollowJointTrajectoryCommand(self.arr_init_pos0)
+       	observation = self.get_observations()
+        print("obs", observation)
+
+        self.gripper.goto_gripper_pos(0, False)
         time.sleep(1)
+        self.jointpub.FollowJointTrajectoryCommand(self.arr_far_pose)
+        time.sleep(0.3)
+        self.jointpub.FollowJointTrajectoryCommand(self.arr_before_close_pose)
+        time.sleep(0.3)
+        self.jointpub.FollowJointTrajectoryCommand(self.arr_close_door_pose)
+        time.sleep(0.3)
+        self.jointpub.FollowJointTrajectoryCommand(self.arr_init_pos1)
+        time.sleep(0.3)
 
         # 5th: Check all subscribers work.
         rospy.logdebug("check_all_systems_ready...")
         self.check_all_systems_ready()
+
+        self.jointpub.FollowJointTrajectoryCommand(self.arr_init_pos2)
+        time.sleep(0.3)
+        self.gripper.goto_gripper_pos(120, False)
 
         # 8th: Get the State Discrete Stringuified version of the observations
         rospy.logdebug("get_observations...")
@@ -494,7 +546,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # we perform the corresponding movement of the robot
         # Act
 
-        action = action + self.arr_init_pos0
+        action = action + self.arr_init_pos2
 
         if self.check_cartesian_limits(action) is True:
             self._act(action)
