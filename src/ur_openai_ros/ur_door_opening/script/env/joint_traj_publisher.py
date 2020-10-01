@@ -42,6 +42,10 @@ class JointTrajPub(object):
     	rospy.loginfo("FollowJointTrajectoryCommand")
 
         try:
+#            rospy.loginfo (rospy.get_rostime().to_sec())
+#            while rospy.get_rostime().to_sec() == 0.0:
+#                time.sleep(0.1)
+#                rospy.loginfo (rospy.get_rostime().to_sec())
             g = FollowJointTrajectoryGoal()
             g.trajectory = JointTrajectory()
             g.trajectory.joint_names.append("shoulder_pan_joint")
@@ -51,7 +55,7 @@ class JointTrajPub(object):
             g.trajectory.joint_names.append("wrist_2_joint")
             g.trajectory.joint_names.append("wrist_3_joint")
     	    	    
-            dt = 3 	#default 3
+            dt = 1 	#default 3
             g.trajectory.points = []
 
             Q2 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
@@ -60,7 +64,10 @@ class JointTrajPub(object):
             client.send_goal(g)
         
             client.wait_for_result()
-        except KeyboardInterrupt:
-            rospy.signal_shutdown("KeyboardInterrupt")
-            rospy.spin()
-            raise
+
+        except rospy.ROSInterruptException: pass
+
+#        except KeyboardInterrupt:
+#            rospy.signal_shutdown("KeyboardInterrupt")
+#            rospy.spin()
+#            raise

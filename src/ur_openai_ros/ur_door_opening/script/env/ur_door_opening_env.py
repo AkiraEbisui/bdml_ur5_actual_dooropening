@@ -29,7 +29,7 @@ from gazebo_msgs.msg import LinkStates
 
 # ROS msg
 from geometry_msgs.msg import Pose, Point, Quaternion, Vector3, WrenchStamped
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, Imu
 from std_msgs.msg import String
 from std_srvs.srv import SetBool, SetBoolResponse, SetBoolRequest
 from std_srvs.srv import Empty
@@ -67,6 +67,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         rospy.Subscriber("/joint_states", JointState, self.joints_state_callback)
         rospy.Subscriber("/TactileSensor4/StaticData", StaticData, self.tactile_static_callback)
         rospy.Subscriber("/TactileSensor4/Dynamic", Dynamic, self.tactile_dynamic_callback)
+        rospy.Subscriber("/imu/data", Imu, self.rt_imu_callback)
+        rospy.Subscriber("/imu/data_3dmg", Imu, self.microstrain_imu_callback)
 
         # Gets training parameters from param server
         self.desired_pose = Pose()
@@ -125,6 +127,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         wr2_init_value1 = rospy.get_param("/init_joint_pose1/wr2")
         wr3_init_value1 = rospy.get_param("/init_joint_pose1/wr3")
         self.init_joint_pose1 = [shp_init_value1, shl_init_value1, elb_init_value1, wr1_init_value1, wr2_init_value1, wr3_init_value1]
+        init_pos1 = self.init_joints_pose(self.init_joint_pose1)
+        self.arr_init_pos1 = np.array(init_pos1, dtype='float32')
 
         shp_init_value2 = rospy.get_param("/init_joint_pose2/shp")
         shl_init_value2 = rospy.get_param("/init_joint_pose2/shl")
@@ -133,6 +137,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         wr2_init_value2 = rospy.get_param("/init_joint_pose2/wr2")
         wr3_init_value2 = rospy.get_param("/init_joint_pose2/wr3")
         self.init_joint_pose2 = [shp_init_value2, shl_init_value2, elb_init_value2, wr1_init_value2, wr2_init_value2, wr3_init_value2]
+        init_pos2 = self.init_joints_pose(self.init_joint_pose2)
+        self.arr_init_pos2 = np.array(init_pos2, dtype='float32')
 
         shp_far_pose = rospy.get_param("/far_pose/shp")
         shl_far_pose = rospy.get_param("/far_pose/shl")
@@ -141,6 +147,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         wr2_far_pose = rospy.get_param("/far_pose/wr2")
         wr3_far_pose = rospy.get_param("/far_pose/wr3")
         self.far_pose = [shp_far_pose, shl_far_pose, elb_far_pose, wr1_far_pose, wr2_far_pose, wr3_far_pose]
+        far_pose = self.init_joints_pose(self.far_pose)
+        self.arr_far_pose = np.array(far_pose, dtype='float32')
 
         shp_before_close_pose = rospy.get_param("/before_close_pose/shp")
         shl_before_close_pose = rospy.get_param("/before_close_pose/shl")
@@ -149,6 +157,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         wr2_before_close_pose = rospy.get_param("/before_close_pose/wr2")
         wr3_before_close_pose = rospy.get_param("/before_close_pose/wr3")
         self.before_close_pose = [shp_before_close_pose, shl_before_close_pose, elb_before_close_pose, wr1_before_close_pose, wr2_before_close_pose, wr3_before_close_pose]
+        before_close_pose = self.init_joints_pose(self.before_close_pose)
+        self.arr_before_close_pose = np.array(before_close_pose, dtype='float32')
 
         shp_close_door_pose = rospy.get_param("/close_door_pose/shp")
         shl_close_door_pose = rospy.get_param("/close_door_pose/shl")
@@ -157,6 +167,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         wr2_close_door_pose = rospy.get_param("/close_door_pose/wr2")
         wr3_close_door_pose = rospy.get_param("/close_door_pose/wr3")
         self.close_door_pose = [shp_close_door_pose, shl_close_door_pose, elb_close_door_pose, wr1_close_door_pose, wr2_close_door_pose, wr3_close_door_pose]
+        close_door_pose = self.init_joints_pose(self.close_door_pose)
+        self.arr_close_door_pose = np.array(close_door_pose, dtype='float32')
 
         # Fill in the Done Episode Criteria list
         self.episode_done_criteria = rospy.get_param("/episode_done_criteria")
@@ -170,21 +182,22 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.torque_limit = rospy.get_param("/torque_limit")
 
         # We init the observations
-        self.base_orientation = Quaternion()
-        self.imu_link = Quaternion()
-        self.door = Quaternion()
         self.quat = Quaternion()
-        self.imu_link_rpy = Vector3()
         self.door_rpy = Vector3()
+        self.door_rotation = Vector3()
+        self.door_rpy_ini = Vector3()
+        self.knob_rpy = []
+        self.knob_rotation = []
+        self.knob_rpy_ini = []
         self.link_state = LinkStates()
         self.wrench_stamped = WrenchStamped()
         self.joints_state = JointState()
         self.tactile_static = StaticData()
         self.tactile_dynamic = Dynamic()
+        self.rt_imu = Imu()
+        self.microstrain_imu = Imu()
         self.end_effector = Point() 
-        self.previous_action =[]
-        self.counter = 0
-        self.max_rewards = 1
+        self.previous_action =[1.521, -1.346, 2.307, 2.180, -1.521, 1.566]
 
         # Arm/Control parameters
         self._ik_params = setups['UR5_6dof']['ik_params']
@@ -246,7 +259,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
     def check_cartesian_limits(self, action):
         ee_xyz = Point()
         ee_xyz = self.get_xyz(action)
-        print("action.z", ee_xyz[2])
+#        print("action.z", ee_xyz[2])
         if self.x_min < ee_xyz[0] and ee_xyz[0] < self.x_max and self.y_min < ee_xyz[1] and ee_xyz[1] < self.y_max and self.z_min < ee_xyz[2] and ee_xyz[2] < self.z_max:
             return True
         else:
@@ -341,6 +354,12 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
     def tactile_dynamic_callback(self,msg):
         self.tactile_dynamic = msg
+
+    def rt_imu_callback(self,msg):
+        self.rt_imu = msg
+
+    def microstrain_imu_callback(self,msg):
+        self.microstrain_imu = msg
 
     def joint_trajectory(self,msg):
         self.jointtrajectory = msg
@@ -470,42 +489,37 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
     # Resets the state of the environment and returns an initial observation.
     def reset(self):
-	# Go to initial position
+	# 1st: Go to initial position
         rospy.logdebug("set_init_pose init variable...>>>" + str(self.init_joint_pose1))
-        init_pos1 = self.init_joints_pose(self.init_joint_pose1)
-        self.arr_init_pos1 = np.array(init_pos1, dtype='float32')
-        init_pos2 = self.init_joints_pose(self.init_joint_pose2)
-        self.arr_init_pos2 = np.array(init_pos2, dtype='float32')
-        far_pose = self.init_joints_pose(self.far_pose)
-        self.arr_far_pose = np.array(far_pose, dtype='float32')
-        before_close_pose = self.init_joints_pose(self.before_close_pose)
-        self.arr_before_close_pose = np.array(before_close_pose, dtype='float32')
-        close_door_pose = self.init_joints_pose(self.close_door_pose)
-        self.arr_close_door_pose = np.array(close_door_pose, dtype='float32')
-
-       	observation = self.get_observations()
-        print("obs", observation)
 
         self.gripper.goto_gripper_pos(0, False)
         time.sleep(1)
         self.jointpub.FollowJointTrajectoryCommand(self.arr_far_pose)
-        time.sleep(0.3)
+#        time.sleep(0.3)
         self.jointpub.FollowJointTrajectoryCommand(self.arr_before_close_pose)
-        time.sleep(0.3)
+#        time.sleep(0.3)
         self.jointpub.FollowJointTrajectoryCommand(self.arr_close_door_pose)
-        time.sleep(0.3)
+#        time.sleep(0.3)
         self.jointpub.FollowJointTrajectoryCommand(self.arr_init_pos1)
-        time.sleep(0.3)
+#        time.sleep(0.3)
 
-        # 5th: Check all subscribers work.
+        # 2nd: Check all subscribers work.
         rospy.logdebug("check_all_systems_ready...")
         self.check_all_systems_ready()
 
+        # 3rd: Get the initial state.
+        self.knob_rpy_ini = copy.deepcopy(self.microstrain_imu.linear_acceleration.y / 9.8 * 1.57)
+        self.quat = self.rt_imu.orientation
+        self.door_rpy_ini = copy.deepcopy(self.cvt_quat_to_euler(self.quat))
+#        print("knob_ini", self.knob_rpy_ini)
+#        print("door_ini", self.door_rpy_ini)
+
+        # 4th: Go to start position.
         self.jointpub.FollowJointTrajectoryCommand(self.arr_init_pos2)
         time.sleep(0.3)
         self.gripper.goto_gripper_pos(120, False)
 
-        # 8th: Get the State Discrete Stringuified version of the observations
+        # 5th: Get the State Discrete Stringuified version of the observations
         rospy.logdebug("get_observations...")
        	observation = self.get_observations()
         return observation
@@ -550,13 +564,32 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         if self.check_cartesian_limits(action) is True:
             self._act(action)
-            print(True)
+            self.wrench_stamped
+            self.force = self.wrench_stamped.wrench.force
+            self.torque = self.wrench_stamped.wrench.torque
+            if self.force_limit < self.force.x or self.force.x < -self.force_limit:
+                self._act(self.previous_action)
+                print("force.x over the limit")
+            elif self.force_limit < self.force.y or self.force.y < -self.force_limit:
+                self._act(self.previous_action)
+                print("force.y over the limit")
+            elif self.force_limit < self.force.z or self.force.z < -self.force_limit:
+                self._act(self.previous_action)
+                print("force.z over the limit")
+            elif self.torque_limit < self.torque.x or self.torque.x < -self.torque_limit:
+                self._act(self.previous_action)
+                print("torque.x over the limit")
+            elif self.torque_limit < self.torque.y or self.torque.y < -self.torque_limit:
+                self._act(self.previous_action)
+                print("torque.y over the limit")
+            elif self.torque_limit < self.torque.z or self.torque.z < -self.torque_limit:
+                self._act(self.previous_action)
+                print("torque.z over the limit")
+            else:
+                self.previous_action = copy.deepcopy(action)
+                print("True")
         else:
-            print(False)
-
-        self.wrench_stamped
-        self.force = self.wrench_stamped.wrench.force
-        self.torque = self.wrench_stamped.wrench.torque
+            print("False")
 
         # We now process the latest data saved in the class state to calculate
         # the state and the rewards. This way we guarantee that they work
@@ -571,15 +604,30 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         return observation, reward, done, {}
 
     def compute_dist_rewards(self):
-#        self.quat = self.door.orientation
-#        self.door_rpy = self.cvt_quat_to_euler(self.quat)
-#        compute_rewards = 0
+        compute_rewards = 0
+        self.quat = self.rt_imu.orientation
+        self.door_rpy = self.cvt_quat_to_euler(self.quat)
+        self.door_rotation.x = self.door_rpy.x - self.door_rpy_ini.x
+        self.door_rotation.y = self.door_rpy.y - self.door_rpy_ini.y
+        self.door_rotation.z = self.door_rpy.z - self.door_rpy_ini.z
+        
+        self.knob_rpy = self.microstrain_imu.linear_acceleration.y / 9.8 * 1.57
+        self.knob_rotation = self.knob_rpy_ini - self.knob_rpy
 
-        print("self.end_effector[2]", self.end_effector[2])
-	return (self.end_effector[2] + 0.1) * 10 # for standup
+        print("knob_rotation", self.knob_rotation)
+#        print("door_rotation.x", self.door_rotation.x)
+#        print("door_rotation.y", self.door_rotation.y)
+        print("door_rotation.z", self.door_rotation.z)
+
+        if self.knob_rotation < 0.9:
+            compute_rewards = self.knob_rotation
+        else:
+            compute_rewards = 0.9 + self.door_rotation.z * 10
+
+	return compute_rewards
 
     def check_done(self):
-        if self.end_effector[2] > 3: # for standup
+        if self.knob_rotation > 0.9 and self.door_rotation.z > 0.2:
             print("done")
             return True
         else :

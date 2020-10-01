@@ -203,6 +203,7 @@ bool TactileSensorServiceCallback(tactilesensors4::TactileSensors::Request  &req
 }
 
 //Main
+//int main(int argc, char **argv)
 int main(int argc, char **argv)
 {
     //Variable declarations:
@@ -222,7 +223,7 @@ int main(int argc, char **argv)
     //    ros::Publisher Quaternion = n.advertise<tactilesensors4::Quaternion>("TactileSensor4/Quaternion",1000);
 
     int USB, n_read;
-    char const * TheDevice = "/dev/ttyACM0"; // By default, the device descriptor is set to "/dev/ttyACM0"
+    char const * TheDevice = "/dev/ttyACM1"; // By default, the device descriptor is set to "/dev/ttyACM0"
     UsbPacket send, recv;
     unsigned int recvSoFar=0;
     std::vector<char> receiveBuffer(4096);

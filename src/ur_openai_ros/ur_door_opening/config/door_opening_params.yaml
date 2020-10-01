@@ -19,8 +19,8 @@ max_height: 3.0   # in meters
 min_height: 0.0   # in meters
 running_step: 0.0010   # in seconds
 
-force_limit: 30 # 300 ~ over 1000 in position control
-torque_limit: 10 # 30 ~  in position control
+force_limit: 50 # 300 ~ over 1000 in position control
+torque_limit: 5 # 30 ~  in position control
 
 observations: # Observations you want to use for the learning
   - shp_joint_ang
@@ -66,12 +66,12 @@ init_joint_pose1:
   wr3: 1.572350908536314
 
 init_joint_pose2:
-  shp: 1.510735130647003
-  shl: -1.3588193568741116
-  elb: 2.3055101287155275
-  wr1: 2.1944348738413386
-  wr2: -1.5100051593089194
-  wr3: 1.570666693504939
+  shp: 1.5207545754349532
+  shl: -1.3455168672291693
+  elb: 2.3070307446957985
+  wr1: 2.180151870866667
+  wr2: -1.5209273781563306
+  wr3: 1.5661402038210819
 
 far_pose:
   shp: 1.481720849173733

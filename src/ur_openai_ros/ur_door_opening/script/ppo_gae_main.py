@@ -21,6 +21,7 @@ from env.ur_door_opening_env import URSimDoorOpening
 # import our training algorithms
 from algorithm.ppo_gae import PPOGAEAgent
 
+
 seed = 0
 obs_dim = 77 # env.observation_space.shape[0] # have to change number of hdim
 n_act = 6 #config: act_dim #env.action_space.n
@@ -34,9 +35,10 @@ def run_episode(env, animate=False): # Run policy and collect (state, action, re
     obs = env.reset()
     observes, actions, rewards, infos = [], [], [], []
     done = False
+    n_step = 100 #1000
 
-    n_step = 3 #1000
     for update in range(n_step):
+        print("update", update)
         obs = np.array(obs)
         obs = obs.astype(np.float32).reshape((1, -1)) # numpy.ndarray (1, num_obs)
         #print ("observes: ", obs.shape, type(obs)) # (1, 15)
@@ -236,7 +238,7 @@ def main():
             ax3.set_xlabel("episodes")
             ax3.set_ylabel("ave_pol_loss")
             ax4 = fig.add_subplot(2, 2, 4)
-            ax4.plot(x_data_e, y_data_e, 'p-')
+            ax4.plot(x_data_e, y_data_e, 'c-')
             ax4.set_xlabel("episodes")
             ax4.set_ylabel("entropy")
 
@@ -251,11 +253,12 @@ def main():
             break
 
 
-        try:
-            client.wait_for_result()
-        except KeyboardInterrupt:
-            rospy.signal_shutdown("KeyboardInterrupt")
-            rospy.spin()
+#        try:
+#            a = 0
+#            client.wait_for_result()
+#        except KeyboardInterrupt:
+#            rospy.signal_shutdown("KeyboardInterrupt")
+#            rospy.spin()
 
         #env.close() # rospy.wait_for_service('/pause_physics') -> raise ROSInterruptException("rospy shutdown")
 
