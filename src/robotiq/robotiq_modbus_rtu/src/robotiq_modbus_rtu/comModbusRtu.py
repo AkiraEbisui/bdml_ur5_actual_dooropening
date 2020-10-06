@@ -45,6 +45,7 @@ The module depends on pymodbus (http://code.google.com/p/pymodbus/) for the Modb
 
 from pymodbus.client.sync import ModbusSerialClient
 from math import ceil
+from time import sleep
 
 class communication:	
 
@@ -86,6 +87,10 @@ class communication:
       #To do!: Implement try/except 
       #Get status from the device
       response = self.client.read_holding_registers(0x07D0, numRegs, unit=0x0009)
+
+      while response == None:
+          sleep(.01)
+          response = self.client.read_holding_registers(0x07D0, numRegs, unit=0x0009)
 
       #Instantiate output as an empty list
       output = []

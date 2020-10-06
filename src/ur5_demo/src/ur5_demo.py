@@ -149,7 +149,7 @@ def debug_ur5():
     current_value = ur5.get_joint_values()
     print("joint_values", current_value)
 
-curr_demo = 5
+curr_demo = 2
 if __name__ == '__main__': 
     if (curr_demo == 1):
         test_move_home()

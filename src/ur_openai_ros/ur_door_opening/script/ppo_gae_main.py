@@ -23,7 +23,7 @@ from algorithm.ppo_gae import PPOGAEAgent
 
 
 seed = 0
-obs_dim = 77 # env.observation_space.shape[0] # have to change number of hdim
+obs_dim = 71 # (6DOF + 3xyz + 56taxels + 6ft) env.observation_space.shape[0] # have to change number of hdim
 n_act = 6 #config: act_dim #env.action_space.n
 agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=64, policy_lr=1e-4, value_lr=1e-4, max_std=1.0, clip_range=0.2, seed=seed)
 #agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=obs_dim, policy_lr=3e-3, value_lr=1e-3, max_std=1.0, clip_range=0.2, seed=seed)

@@ -37,6 +37,10 @@
   <include file="$(find tactilesensors4)/launch/tactilesensors4.launch">
   </include>
 
+  <!-- Load the FT300 force-torque sensor -->
+  <node pkg="robotiq_ft_sensor" type="rq_sensor" name="rq_sensor" required="true" output="screen">
+  </node>
+
   <!-- Load moveit planner
   <include file="$(find ur5_moveit_config)/launch/ur5_moveit_planning_execution.launch">
     <arg name="limited" value="true"/>

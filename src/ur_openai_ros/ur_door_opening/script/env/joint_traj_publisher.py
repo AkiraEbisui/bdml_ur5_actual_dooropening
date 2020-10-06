@@ -55,7 +55,7 @@ class JointTrajPub(object):
             g.trajectory.joint_names.append("wrist_2_joint")
             g.trajectory.joint_names.append("wrist_3_joint")
     	    	    
-            dt = 1 	#default 3
+            dt = 3 	#default 3
             g.trajectory.points = []
 
             Q2 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
