@@ -143,7 +143,7 @@ class PPOGAEAgent(object):
         # REINFORCE OBJECTIVE
         ratio = tf.exp(self.logp - self.logp_old)
         cliped_ratio = tf.clip_by_value(ratio,clip_value_min=1-self.clip_range,clip_value_max=1+self.clip_range)
-        self.policy_loss = -tf.reduce_mean(tf.minimum(self.adv_ph*ratio,self.adv_ph*cliped_ratio))
+        self.policy_loss = -tf.reduce_mean(tf.minimum(self.adv_ph*ratio,self.adv_ph*cliped_ratio)) + 1e-10 # add 1e-10 for preventing from "nan"
         
         # POLICY OPTIMIZER
         self.pol_var_list = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope="policy")

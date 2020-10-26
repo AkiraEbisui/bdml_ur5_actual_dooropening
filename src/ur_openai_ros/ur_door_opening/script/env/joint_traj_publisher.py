@@ -58,6 +58,36 @@ class JointTrajPub(object):
             dt = 1 	#default 3
             g.trajectory.points = []
 
+            Q1 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
+            print("Q1", Q1)
+            g.trajectory.points.append(JointTrajectoryPoint(positions=Q1, velocities=[0]*6, time_from_start=rospy.Duration(dt)))
+
+            client.send_goal(g)
+        
+            client.wait_for_result()
+
+        except rospy.ROSInterruptException: pass
+
+    def FollowJointTrajectoryCommand_reset(self, joints_array): # dtype=float32), <type 'numpy.ndarray'>
+    	rospy.loginfo("FollowJointTrajectoryCommand")
+
+        try:
+#            rospy.loginfo (rospy.get_rostime().to_sec())
+#            while rospy.get_rostime().to_sec() == 0.0:
+#                time.sleep(0.1)
+#                rospy.loginfo (rospy.get_rostime().to_sec())
+            g = FollowJointTrajectoryGoal()
+            g.trajectory = JointTrajectory()
+            g.trajectory.joint_names.append("shoulder_pan_joint")
+            g.trajectory.joint_names.append("shoulder_lift_joint")
+            g.trajectory.joint_names.append("elbow_joint")
+            g.trajectory.joint_names.append("wrist_1_joint")
+            g.trajectory.joint_names.append("wrist_2_joint")
+            g.trajectory.joint_names.append("wrist_3_joint")
+    	    	    
+            dt = 1 	#default 3
+            g.trajectory.points = []
+
             Q2 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
             g.trajectory.points.append(JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(dt)))
 
