@@ -557,6 +557,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.jointpub.FollowJointTrajectoryCommand_reset(self.arr_init_pos2)
         time.sleep(1)
         self.gripper.goto_gripper_pos(120, False)
+        time.sleep(1)
 
         # 5th: Get the State Discrete Stringuified version of the observations
         self.static_taxel = self.tactile_static.taxels

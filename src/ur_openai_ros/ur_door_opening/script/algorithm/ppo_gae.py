@@ -122,12 +122,12 @@ class PPOGAEAgent(object):
         self.logp_old = tf.reduce_sum(-0.5*tf.square((y-old_mu_ph)/old_sigma_ph)-tf.math.log(old_sigma_ph)- 0.5*np.log(2.*np.pi),axis=1)
         
     def _kl_entropy(self):
-
+        delta = 1e-7
         mean, std = self.mean, self.std
         old_mean, old_std = self.old_mean_ph, self.old_std_ph
  
-        log_std_old = tf.math.log(old_std)
-        log_std_new = tf.math.log(std)
+        log_std_old = tf.math.log(tf.clip_by_value(old_std, 1e-10, 1.0))
+        log_std_new = tf.math.log(tf.clip_by_value(std, 1e-10, 1.0))
         frac_std_old_new = old_std/std
 
         # KL DIVERGENCE BETWEEN TWO GAUSSIAN
@@ -135,15 +135,17 @@ class PPOGAEAgent(object):
         self.kl = tf.reduce_mean(kl)
         
         # ENTROPY OF GAUSSIAN
-        entropy = tf.reduce_sum(log_std_new + 0.5 + 0.5*np.log(2*np.pi),axis=1)
+        entropy = tf.reduce_sum(log_std_new + 0.5 + 0.5*np.log(2*np.pi + delta),axis=1)
         self.entropy = tf.reduce_mean(entropy)
             
     def _loss_train_op(self):
         
         # REINFORCE OBJECTIVE
         ratio = tf.exp(self.logp - self.logp_old)
+        print("ratio, self.logp, self.logp_old", ratio, self.logp, self.logp_old)
         cliped_ratio = tf.clip_by_value(ratio,clip_value_min=1-self.clip_range,clip_value_max=1+self.clip_range)
-        self.policy_loss = -tf.reduce_mean(tf.minimum(self.adv_ph*ratio,self.adv_ph*cliped_ratio)) + 1e-10 # add 1e-10 for preventing from "nan"
+        self.policy_loss = -tf.reduce_mean(tf.minimum(self.adv_ph*ratio,self.adv_ph*cliped_ratio)) + 1e-7 # add 1e-10 for preventing from "nan"
+        print("cliped_ratio, self.policy_loss", cliped_ratio, self.policy_loss)
         
         # POLICY OPTIMIZER
         self.pol_var_list = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope="policy")
@@ -214,6 +216,9 @@ class PPOGAEAgent(object):
              self.policy_lr_ph: self.policy_lr,
              self.value_lr_ph: self.value_lr}               
         policy_loss, value_loss, kl, entropy  = self.sess.run([self.policy_loss, self.value_loss, self.kl, self.entropy], feed_dict)
+        print("old_std, log_std_old", self.old_std_ph, tf.math.log(self.old_std_ph))
+        print("std, log_std_new", self.std, tf.math.log(self.std))
+        print("frac_std_old_new", self.old_std_ph/self.std)
         
         # save the parameters
 	self.counter = self.counter + 1

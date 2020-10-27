@@ -57,7 +57,7 @@ def run_episode(env, animate=False): # Run policy and collect (state, action, re
         
         action = agent.get_action(obs) # List
 
-        action = [0, 0, 0, 0, 0, action[5]]
+        action = [0, 0, 0, 0, action[4], action[5]]
 
         print("after get action", action)
         actions.append(action)
