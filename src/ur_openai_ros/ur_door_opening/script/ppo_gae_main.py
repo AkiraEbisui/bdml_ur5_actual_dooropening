@@ -35,6 +35,7 @@ lam = rospy.get_param("/ML/lam")
 episode_size = rospy.get_param("/ML/episode_size")
 batch_size = rospy.get_param("/ML/batch_size")
 nupdates = rospy.get_param("/ML/nupdates")
+maxlen_num = rospy.get_param("/ML/maxlen_num")
 
 agent = PPOGAEAgent(obs_dim, n_act, epochs, hdim, policy_lr, value_lr, max_std, clip_range, seed)
 #agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=obs_dim, policy_lr=3e-3, value_lr=1e-3, max_std=1.0, clip_range=0.2, seed=seed)
@@ -56,12 +57,10 @@ def run_episode(env, animate=False): # Run policy and collect (state, action, re
         observes.append(obs)
         
         action = agent.get_action(obs) # List
-
         action = [0, 0, 0, 0, action[4], action[5]]
 
-        print("after get action", action)
         actions.append(action)
-        obs, reward, done, info = env.step(action)
+        obs, reward, done, info = env.step(action, update)
         
         if not isinstance(reward, float):
             reward = np.asscalar(reward)
@@ -155,36 +154,41 @@ def main():
     tf.compat.v1.set_random_seed(seed)
     env.seed(seed=seed)
 
-    avg_return_list = deque(maxlen=1) # 10
-    avg_pol_loss_list = deque(maxlen=1) # 10
-    avg_val_loss_list = deque(maxlen=1) # 10
-    avg_entropy_list = deque(maxlen=1) # 10
-    avg_max_knob_rotation_list = deque(maxlen=1) # 10
-    avg_max_door_rotation_list = deque(maxlen=1) # 10
-    max_wrist3_list = deque(maxlen=1) # 10
-    min_wrist3_list = deque(maxlen=1) # 10
-    max_wrist2_list = deque(maxlen=1) # 10
-    min_wrist2_list = deque(maxlen=1) # 10
-    max_wrist1_list = deque(maxlen=1) # 10
-    min_wrist1_list = deque(maxlen=1) # 10
-    max_elb_list = deque(maxlen=1) # 10
-    min_elb_list = deque(maxlen=1) # 10
-    max_shl_list = deque(maxlen=1) # 10
-    min_shl_list = deque(maxlen=1) # 10
-    max_shp_list = deque(maxlen=1) # 10
-    min_shp_list = deque(maxlen=1) # 10
-    max_force_x_list = deque(maxlen=1) # 10
-    min_force_x_list = deque(maxlen=1) # 10
-    max_force_y_list = deque(maxlen=1) # 10
-    min_force_y_list = deque(maxlen=1) # 10
-    max_force_z_list = deque(maxlen=1) # 10
-    min_force_z_list = deque(maxlen=1) # 10
-    max_torque_x_list = deque(maxlen=1) # 10
-    min_torque_x_list = deque(maxlen=1) # 10
-    max_torque_y_list = deque(maxlen=1) # 10
-    min_torque_y_list = deque(maxlen=1) # 10
-    max_torque_z_list = deque(maxlen=1) # 10
-    min_torque_z_list = deque(maxlen=1) # 10
+    maxlen_num
+    avg_return_list = deque(maxlen=maxlen_num) # 10
+    avg_pol_loss_list = deque(maxlen=maxlen_num) # 10
+    avg_val_loss_list = deque(maxlen=maxlen_num) # 10
+    avg_entropy_list = deque(maxlen=maxlen_num) # 10
+    avg_max_knob_rotation_list = deque(maxlen=maxlen_num) # 10
+    avg_max_door_rotation_list = deque(maxlen=maxlen_num) # 10
+    max_wrist3_list = deque(maxlen=maxlen_num) # 10
+    min_wrist3_list = deque(maxlen=maxlen_num) # 10
+    max_wrist2_list = deque(maxlen=maxlen_num) # 10
+    min_wrist2_list = deque(maxlen=maxlen_num) # 10
+    max_wrist1_list = deque(maxlen=maxlen_num) # 10
+    min_wrist1_list = deque(maxlen=maxlen_num) # 10
+    max_elb_list = deque(maxlen=maxlen_num) # 10
+    min_elb_list = deque(maxlen=maxlen_num) # 10
+    max_shl_list = deque(maxlen=maxlen_num) # 10
+    min_shl_list = deque(maxlen=maxlen_num) # 10
+    max_shp_list = deque(maxlen=maxlen_num) # 10
+    min_shp_list = deque(maxlen=maxlen_num) # 10
+    max_force_x_list = deque(maxlen=maxlen_num) # 10
+    min_force_x_list = deque(maxlen=maxlen_num) # 10
+    max_force_y_list = deque(maxlen=maxlen_num) # 10
+    min_force_y_list = deque(maxlen=maxlen_num) # 10
+    max_force_z_list = deque(maxlen=maxlen_num) # 10
+    min_force_z_list = deque(maxlen=maxlen_num) # 10
+    max_torque_x_list = deque(maxlen=maxlen_num) # 10
+    min_torque_x_list = deque(maxlen=maxlen_num) # 10
+    max_torque_y_list = deque(maxlen=maxlen_num) # 10
+    min_torque_y_list = deque(maxlen=maxlen_num) # 10
+    max_torque_z_list = deque(maxlen=maxlen_num) # 10
+    min_torque_z_list = deque(maxlen=maxlen_num) # 10
+    min_taxel0_list = deque(maxlen=maxlen_num) # 10
+    max_taxel0_list = deque(maxlen=maxlen_num) # 10
+    min_taxel1_list = deque(maxlen=maxlen_num) # 10
+    max_taxel1_list = deque(maxlen=maxlen_num) # 10
 
     # save fig
     x_data = []
@@ -225,6 +229,10 @@ def main():
     y_data_min_torque_y = []
     y_data_max_torque_z = []
     y_data_min_torque_z = []
+    y_data_min_taxel0 = []
+    y_data_max_taxel0 = []
+    y_data_min_taxel1 = []
+    y_data_max_taxel1 = []
     fig = plt.figure(figsize=(20, 10))
 
     env.first_reset()
@@ -279,10 +287,16 @@ def main():
         min_torque_y_list.append(env.min_torque_y)
         max_torque_z_list.append(env.max_torque_z)
         min_torque_z_list.append(env.min_torque_z)
+        min_taxel0_list.append(env.min_taxel0)
+        max_taxel0_list.append(env.max_taxel0)
+        min_taxel1_list.append(env.min_taxel1)
+        max_taxel1_list.append(env.max_taxel1)
 
         if (update%1) == 0:
+            print("###################################################################################")
             print('[{}/{}] return : {:.3f}, value loss : {:.3f}, policy loss : {:.3f}, policy kl : {:.5f}, policy entropy : {:.3f}'.format(
                 update, nupdates, np.mean(avg_return_list), np.mean(avg_val_loss_list), np.mean(avg_pol_loss_list), kl, entropy))
+            print("###################################################################################")
 
         x_data.append(update)
         y_data.append(np.mean(avg_return_list))
@@ -322,30 +336,34 @@ def main():
         y_data_min_torque_y.append(np.mean(min_torque_y_list))
         y_data_max_torque_z.append(np.mean(max_torque_z_list))
         y_data_min_torque_z.append(np.mean(min_torque_z_list))
+        y_data_min_taxel0.append(np.mean(min_taxel0_list))
+        y_data_max_taxel0.append(np.mean(max_taxel0_list))
+        y_data_min_taxel1.append(np.mean(min_taxel1_list))
+        y_data_max_taxel1.append(np.mean(max_taxel1_list))
 
         if (update%1) == 0:
-            ax1 = fig.add_subplot(2, 4, 1)
+            ax1 = fig.add_subplot(3, 3, 1)
             ax1.plot(x_data, y_data, 'r-')
             ax1.set_xlabel("episodes")
             ax1.set_ylabel("ave_return")
-            ax2 = fig.add_subplot(2, 4, 2)
+            ax2 = fig.add_subplot(3, 3, 2)
             ax2.plot(x_data_v, y_data_v, 'b-')
             ax2.set_xlabel("episodes")
             ax2.set_ylabel("ave_val_loss")
-            ax3 = fig.add_subplot(2, 4, 3)
+            ax3 = fig.add_subplot(3, 3, 3)
             ax3.plot(x_data_p, y_data_p, 'g-')
             ax3.set_xlabel("episodes")
             ax3.set_ylabel("ave_pol_loss")
-            ax4 = fig.add_subplot(2, 4, 4)
+            ax4 = fig.add_subplot(3, 3, 4)
             ax4.plot(x_data_e, y_data_e, 'c-')
             ax4.set_xlabel("episodes")
             ax4.set_ylabel("entropy")
-            ax5 = fig.add_subplot(2, 4, 5)
+            ax5 = fig.add_subplot(3, 3, 5)
             ax5.plot(x_data_k, y_data_k, 'r-')
             ax5.plot(x_data_k, y_data_d, 'b-')
             ax5.set_xlabel("episodes")
             ax5.set_ylabel("max_knob&door_rotation")
-            ax6 = fig.add_subplot(2, 4, 6)
+            ax6 = fig.add_subplot(3, 3, 6)
             ax6.plot(x_data_a, y_data_max_wrist3, 'r-', linestyle="solid")
             ax6.plot(x_data_a, y_data_min_wrist3, 'r-', linestyle="dashed")
             ax6.plot(x_data_a, y_data_max_wrist2, 'b-', linestyle="solid")
@@ -360,7 +378,7 @@ def main():
             ax6.plot(x_data_a, y_data_min_shp, 'k-', linestyle="dashed")
             ax6.set_xlabel("episodes")
             ax6.set_ylabel("max&min_action")
-            ax7 = fig.add_subplot(2, 4, 7)
+            ax7 = fig.add_subplot(3, 3, 7)
             ax7.plot(x_data_f, y_data_max_force_x, 'r-', linestyle="solid")
             ax7.plot(x_data_f, y_data_min_force_x, 'r-', linestyle="dashed")
             ax7.plot(x_data_f, y_data_max_force_y, 'b-', linestyle="solid")
@@ -369,7 +387,7 @@ def main():
             ax7.plot(x_data_f, y_data_min_force_z, 'g-', linestyle="dashed")
             ax7.set_xlabel("episodes")
             ax7.set_ylabel("max&min_force")
-            ax8 = fig.add_subplot(2, 4, 8)
+            ax8 = fig.add_subplot(3, 3, 8)
             ax8.plot(x_data_f, y_data_max_torque_x, 'r-', linestyle="solid")
             ax8.plot(x_data_f, y_data_min_torque_x, 'r-', linestyle="dashed")
             ax8.plot(x_data_f, y_data_max_torque_y, 'b-', linestyle="solid")
@@ -378,6 +396,13 @@ def main():
             ax8.plot(x_data_f, y_data_min_torque_z, 'g-', linestyle="dashed")
             ax8.set_xlabel("episodes")
             ax8.set_ylabel("max&min_torque")
+            ax9 = fig.add_subplot(3, 3, 9)
+            ax9.plot(x_data_f, y_data_max_taxel0, 'r-', linestyle="solid")
+            ax9.plot(x_data_f, y_data_min_taxel0, 'r-', linestyle="dashed")
+            ax9.plot(x_data_f, y_data_max_taxel1, 'b-', linestyle="solid")
+            ax9.plot(x_data_f, y_data_min_taxel1, 'b-', linestyle="dashed")
+            ax9.set_xlabel("episodes")
+            ax9.set_ylabel("min&max_taxel0&1")
 
             fig.subplots_adjust(hspace=0.3, wspace=0.4)
             plt.draw()

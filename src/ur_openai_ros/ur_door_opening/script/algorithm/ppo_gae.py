@@ -142,10 +142,10 @@ class PPOGAEAgent(object):
         
         # REINFORCE OBJECTIVE
         ratio = tf.exp(self.logp - self.logp_old)
-        print("ratio, self.logp, self.logp_old", ratio, self.logp, self.logp_old)
+#        print("ratio, self.logp, self.logp_old", ratio, self.logp, self.logp_old)
         cliped_ratio = tf.clip_by_value(ratio,clip_value_min=1-self.clip_range,clip_value_max=1+self.clip_range)
         self.policy_loss = -tf.reduce_mean(tf.minimum(self.adv_ph*ratio,self.adv_ph*cliped_ratio)) + 1e-7 # add 1e-10 for preventing from "nan"
-        print("cliped_ratio, self.policy_loss", cliped_ratio, self.policy_loss)
+#        print("cliped_ratio, self.policy_loss", cliped_ratio, self.policy_loss)
         
         # POLICY OPTIMIZER
         self.pol_var_list = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope="policy")
@@ -216,9 +216,9 @@ class PPOGAEAgent(object):
              self.policy_lr_ph: self.policy_lr,
              self.value_lr_ph: self.value_lr}               
         policy_loss, value_loss, kl, entropy  = self.sess.run([self.policy_loss, self.value_loss, self.kl, self.entropy], feed_dict)
-        print("old_std, log_std_old", self.old_std_ph, tf.math.log(self.old_std_ph))
-        print("std, log_std_new", self.std, tf.math.log(self.std))
-        print("frac_std_old_new", self.old_std_ph/self.std)
+#        print("old_std, log_std_old", self.old_std_ph, tf.math.log(self.old_std_ph))
+#        print("std, log_std_new", self.std, tf.math.log(self.std))
+#        print("frac_std_old_new", self.old_std_ph/self.std)
         
         # save the parameters
 	self.counter = self.counter + 1

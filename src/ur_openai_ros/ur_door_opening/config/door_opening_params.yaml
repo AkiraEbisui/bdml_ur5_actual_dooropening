@@ -17,15 +17,28 @@ ML:
   batch_size: 16
   nupdates: 10000
 
-  act_step: 2 # 30
+  act_step: 3 # 30
+  sub_step: 5
   save_step: 10
+  maxlen_num: 1
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
 
-force_limit: 50 # 300 ~ over 1000 in position control
-torque_limit: 5 # 30 ~  in position control
+# Limit
+force_limit1: 40
+torque_limit1: 8
+force_limit2: 70 # 300 ~ over 1000 in position control
+torque_limit2: 10 # 30 ~  in position control
+min_static_limit: -0.4
+max_static_limit: 0.4
 
+# act
+act_params:
+ dt_act: 1
+ dt_reset: 1
+
+# observations
 obs_params:
   joint_n: 1
   eef_n: 10
@@ -139,13 +152,13 @@ joint_velocity_limits_array:
   wr3_max: 1.0
   wr3_min: -1.0
 
-cartesian_limits:
+cartesian_limits:  # On the surface plate
   x_max: -0.08     # 0.2
-  x_min: -0.11   #-0.45
+  x_min: -0.11     #-0.45
   y_max: 0.425     # 0.7
-  y_min: 0.35   #-0.25
-  z_max: 0.31       # 2
-  z_min: 0.26    # 0.15
+  y_min: 0.35      #-0.25
+  z_max: 0.31      # 2
+  z_min: 0.26      # 0.15
 
 #episode_done_criteria:
 #  - panel_10deg

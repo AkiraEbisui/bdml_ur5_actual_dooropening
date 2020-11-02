@@ -13,6 +13,9 @@ from geometry_msgs.msg import Vector3
 from trajectory_msgs.msg import JointTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 
+dt_act = rospy.get_param("/act_params/dt_act")
+dt_reset = rospy.get_param("/act_params/dt_reset")
+
 class JointTrajPub(object):
     def __init__(self):
         global client
@@ -39,7 +42,7 @@ class JointTrajPub(object):
     	rospy.logdebug("All Joint Publishers READY")
 
     def FollowJointTrajectoryCommand(self, joints_array): # dtype=float32), <type 'numpy.ndarray'>
-    	rospy.loginfo("FollowJointTrajectoryCommand")
+#    	rospy.loginfo("FollowJointTrajectoryCommand")
 
         try:
 #            rospy.loginfo (rospy.get_rostime().to_sec())
@@ -55,12 +58,12 @@ class JointTrajPub(object):
             g.trajectory.joint_names.append("wrist_2_joint")
             g.trajectory.joint_names.append("wrist_3_joint")
     	    	    
-            dt = 1 	#default 3
+            #dt = 1 	#default 3
             g.trajectory.points = []
 
             Q1 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
-            print("Q1", Q1)
-            g.trajectory.points.append(JointTrajectoryPoint(positions=Q1, velocities=[0]*6, time_from_start=rospy.Duration(dt)))
+#            print("Q1", Q1)
+            g.trajectory.points.append(JointTrajectoryPoint(positions=Q1, velocities=[0]*6, time_from_start=rospy.Duration(dt_act)))
 
             client.send_goal(g)
         
@@ -69,7 +72,7 @@ class JointTrajPub(object):
         except rospy.ROSInterruptException: pass
 
     def FollowJointTrajectoryCommand_reset(self, joints_array): # dtype=float32), <type 'numpy.ndarray'>
-    	rospy.loginfo("FollowJointTrajectoryCommand")
+#    	rospy.loginfo("FollowJointTrajectoryCommand")
 
         try:
 #            rospy.loginfo (rospy.get_rostime().to_sec())
@@ -85,11 +88,11 @@ class JointTrajPub(object):
             g.trajectory.joint_names.append("wrist_2_joint")
             g.trajectory.joint_names.append("wrist_3_joint")
     	    	    
-            dt = 1 	#default 3
+            #dt_reset = 1 	#default 3
             g.trajectory.points = []
 
             Q2 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
-            g.trajectory.points.append(JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(dt)))
+            g.trajectory.points.append(JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(dt_reset)))
 
             client.send_goal(g)
         
