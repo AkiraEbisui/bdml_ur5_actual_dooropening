@@ -736,10 +736,10 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 self.max_taxel1 = self.max_static_taxel1
 
             if self.min_static_taxel0 < self.min_static_limit and self.min_static_taxel1 < self.min_static_limit:
-                print("slipped and break the for loop(min over)")
+                print("slipped and break the for loop(min over)", self.min_static_taxel0, self.min_static_taxel1)
                 break
-            if self.max_static_taxel0 < self.max_static_limit and self.max_static_taxel1 < self.max_static_limit:
-                print("slipped and break the for loop(max over)")
+            if self.max_static_taxel0 > self.max_static_limit and self.max_static_taxel1 > self.max_static_limit:
+                print("slipped and break the for loop(max over)", self.max_static_taxel0, self.max_static_taxel1)
                 break
     
         # We now process the latest data saved in the class state to calculate
@@ -778,6 +778,19 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         else:
             compute_rewards = 0.9 * 100 + self.door_rotation.z * 100
 
+        if self.force_limit1 < self.delta_force_x or self.delta_force_x < -self.force_limit1:
+            compute_rewards -= 10 * (n_step - update) / n_step + 10
+        elif self.force_limit1 < self.delta_force_y or self.delta_force_y < -self.force_limit1:
+            compute_rewards -= 10 * (n_step - update) / n_step + 10
+        elif self.force_limit1 < self.delta_force_z or self.delta_force_z < -self.force_limit1:
+            compute_rewards -= 10 * (n_step - update) / n_step + 10
+        elif self.torque_limit1 < self.delta_torque_x or self.delta_torque_x < -self.torque_limit1:
+            compute_rewards -= 10 * (n_step - update) / n_step + 10
+        elif self.torque_limit1 < self.delta_torque_y or self.delta_torque_y < -self.torque_limit1:
+            compute_rewards -= 10 * (n_step - update) / n_step + 10
+        elif self.torque_limit1 < self.delta_torque_z or self.delta_torque_z < -self.torque_limit1:
+            compute_rewards -= 10 * (n_step - update) / n_step + 10
+
         if self.force_limit2 < self.delta_force_x or self.delta_force_x < -self.force_limit2:
             compute_rewards -= 50 * (n_step - update) / n_step + 50
         elif self.force_limit2 < self.delta_force_y or self.delta_force_y < -self.force_limit2:
@@ -792,6 +805,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
             compute_rewards -= 50 * (n_step - update) / n_step + 50
 
         if self.min_static_taxel0 < self.min_static_limit and self.min_static_taxel1 < self.min_static_limit:
+            compute_rewards -= 50 * (n_step - update) / n_step + 50
+        elif self.max_static_taxel0 > self.max_static_limit and self.max_static_taxel1 > self.max_static_limit:
             compute_rewards -= 50 * (n_step - update) / n_step + 50
 
 	return compute_rewards
@@ -817,7 +832,10 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 print("########## torque.z over the limit2 ##########", update)
                 return True
             elif self.min_static_taxel0 < self.min_static_limit and self.min_static_taxel1 < self.min_static_limit:
-                print("########## static_taxles over the limit ##########", update)
+                print("########## static_taxles over the min limit ##########", update)
+                return True
+            elif self.max_static_taxel0 > self.max_static_limit and self.max_static_taxel1 > self.max_static_limit:
+                print("########## static_taxles over the max limit ##########", update)
                 return True
             else :
             	return False
