@@ -1,7 +1,7 @@
 # Algortihm Parameters
 ML:
   seed: 0
-  obs_dim: 77
+  obs_dim: 41
   n_act: 6
   epochs: 10
   hdim: 64
@@ -9,7 +9,7 @@ ML:
   value_lr: 1e-3
   max_std: 1.0
   clip_range: 0.2
-  n_step: 16 # 1000
+  n_step: 4 # 1000
 
   gamma: 0.99
   lam: 0.98
@@ -68,7 +68,8 @@ observations: # Observations you want to use for the learning
   - torque_x # 3
   - torque_y
   - torque_z
-  - static_taxel # 56
+  - image_cnn # 20
+#  - static_taxel # 56
 #  - dynamic_taxel
 
 joint_names: ['shoulder_link', 'upper_arm_link', 'forearm_link', 'wrist_1_link', 'wrist_2_link', 'wrist_3_link']

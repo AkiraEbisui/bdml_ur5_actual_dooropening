@@ -47,13 +47,11 @@ def run_episode(env, animate=False): # Run policy and collect (state, action, re
     obs = env.reset()
     observes, actions, rewards, infos = [], [], [], []
     done = False
-#    n_step = 100 #1000
 
     for update in range(n_step):
         print("update", update)
         obs = np.array(obs)
         obs = obs.astype(np.float32).reshape((1, -1)) # numpy.ndarray (1, num_obs)
-        #print ("observes: ", obs.shape, type(obs)) # (1, 15)
         observes.append(obs)
         
         action = agent.get_action(obs) # List
