@@ -9,7 +9,7 @@ ML:
   value_lr: 1e-3
   max_std: 1.0
   clip_range: 0.2
-  n_step: 4 # 1000
+  n_step: 16 # 1000
 
   gamma: 0.99
   lam: 0.98
@@ -26,9 +26,9 @@ ML:
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
 
 # Limit
-force_limit1: 40
-torque_limit1: 8
-force_limit2: 70 # 300 ~ over 1000 in position control
+force_limit1: 35
+torque_limit1: 5
+force_limit2: 50 # 300 ~ over 1000 in position control
 torque_limit2: 10 # 30 ~  in position control
 min_static_limit: -0.4
 max_static_limit: 0.4
@@ -153,13 +153,13 @@ joint_velocity_limits_array:
   wr3_max: 1.0
   wr3_min: -1.0
 
-cartesian_limits:  # On the surface plate
-  x_max: -0.08     # 0.2
-  x_min: -0.11     #-0.45
-  y_max: 0.425     # 0.7
-  y_min: 0.35      #-0.25
-  z_max: 0.31      # 2
-  z_min: 0.26      # 0.15
+cartesian_limits:  # default #On the surface plate
+  x_max: -0.08     # -0.08   #  0.2
+  x_min: -0.10     # -0.11   # -0.45
+  y_max: 0.425     #  0.425  #  0.7
+  y_min: 0.35      #  0.35   # -0.25
+  z_max: 0.29      #  0.31   #  2
+  z_min: 0.27      #  0.26   #  0.15
 
 #episode_done_criteria:
 #  - panel_10deg
