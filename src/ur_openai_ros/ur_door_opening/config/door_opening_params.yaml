@@ -1,7 +1,7 @@
 # Algortihm Parameters
 ML:
   seed: 0
-  obs_dim: 41
+  obs_dim: 44
   n_act: 6
   epochs: 10
   hdim: 64
@@ -15,33 +15,34 @@ ML:
   lam: 0.98
   episode_size: 1
   batch_size: 16
-  nupdates: 10000
+  nupdates: 1000
 
-  act_step: 2 # 30
-  sub_step: 5
+  act_step: 1 # 30
+  sub_step: 20
   save_step: 10
-  maxlen_num: 1
+  maxlen_num: 3
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
 
 # Limit
-force_limit1: 35
-torque_limit1: 5
-force_limit2: 50 # 300 ~ over 1000 in position control
-torque_limit2: 10 # 30 ~  in position control
-min_static_limit: -0.4
-max_static_limit: 0.4
+force_limit1: 15 # 15 when using only wrist_3
+torque_limit1: 2 #  2 when using only wrist_3
+force_limit2: 30 # 300 ~ over 1000 in position control
+torque_limit2: 4 # 30 ~  in position control
+min_static_limit: -0.4 # -0.1 when using only wrist_3
+max_static_limit:  0.4 #  0.1 when using only wrist_3
 
 # act
 act_params:
- dt_act: 1
+ dt_act: 0.5
  dt_reset: 1
 
 # normarizing parameters for observations
 obs_params:
   joint_n: 1
   eef_n: 10
+  eef_rpy_n: 1
   force_n: 1 # 0.01
   torque_n: 1 # 0.1
   taxel_n: 0.0003 # 0.01
@@ -62,6 +63,9 @@ observations: # Observations you want to use for the learning
   - eef_x # 3
   - eef_y
   - eef_z
+  - eef_rpy_x # 3
+  - eef_rpy_y
+  - eef_rpy_z
   - force_x # 3
   - force_y
   - force_z

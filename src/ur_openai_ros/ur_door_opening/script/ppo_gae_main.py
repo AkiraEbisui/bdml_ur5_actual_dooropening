@@ -188,6 +188,22 @@ def main():
     min_taxel1_list = deque(maxlen=maxlen_num) # 10
     max_taxel1_list = deque(maxlen=maxlen_num) # 10
 
+    step_list = deque(maxlen=maxlen_num) # 10
+    min_act_correct_list = deque(maxlen=maxlen_num) # 10
+    max_act_correct_list = deque(maxlen=maxlen_num) # 10
+    max_eef_x_list = deque(maxlen=maxlen_num) # 10
+    min_eef_x_list = deque(maxlen=maxlen_num) # 10
+    max_eef_y_list = deque(maxlen=maxlen_num) # 10
+    min_eef_y_list = deque(maxlen=maxlen_num) # 10
+    max_eef_z_list = deque(maxlen=maxlen_num) # 10
+    min_eef_z_list = deque(maxlen=maxlen_num) # 10
+    max_eef_rpy_x_list = deque(maxlen=maxlen_num) # 10
+    min_eef_rpy_x_list = deque(maxlen=maxlen_num) # 10
+    max_eef_rpy_y_list = deque(maxlen=maxlen_num) # 10
+    min_eef_rpy_y_list = deque(maxlen=maxlen_num) # 10
+    max_eef_rpy_z_list = deque(maxlen=maxlen_num) # 10
+    min_eef_rpy_z_list = deque(maxlen=maxlen_num) # 10
+
     # save fig
     x_data = []
     y_data = []
@@ -231,6 +247,23 @@ def main():
     y_data_max_taxel0 = []
     y_data_min_taxel1 = []
     y_data_max_taxel1 = []
+
+    y_data_step = []
+    y_data_min_act_correct = []
+    y_data_max_act_correct = []
+    y_data_max_eef_x = []
+    y_data_min_eef_x = []
+    y_data_max_eef_y = []
+    y_data_min_eef_y = []
+    y_data_max_eef_z = []
+    y_data_min_eef_z = []
+    y_data_max_eef_rpy_x = []
+    y_data_min_eef_rpy_x = []
+    y_data_max_eef_rpy_y = []
+    y_data_min_eef_rpy_y = []
+    y_data_max_eef_rpy_z = []
+    y_data_min_eef_rpy_z = []
+
     fig = plt.figure(figsize=(20, 10))
 
     env.first_reset()
@@ -290,6 +323,22 @@ def main():
         min_taxel1_list.append(env.min_taxel1)
         max_taxel1_list.append(env.max_taxel1)
 
+        step_list.append(returns.shape)
+        min_act_correct_list.append(env.min_act_correct_n)
+        max_act_correct_list.append(env.max_act_correct_n)
+        max_eef_x_list.append(env.max_eef_x)
+        min_eef_x_list.append(env.min_eef_x)
+        max_eef_y_list.append(env.max_eef_y)
+        min_eef_y_list.append(env.min_eef_y)
+        max_eef_z_list.append(env.max_eef_z)
+        min_eef_z_list.append(env.min_eef_z)
+        max_eef_rpy_x_list.append(env.max_eef_rpy_x)
+        min_eef_rpy_x_list.append(env.min_eef_rpy_x)
+        max_eef_rpy_y_list.append(env.max_eef_rpy_y)
+        min_eef_rpy_y_list.append(env.min_eef_rpy_y)
+        max_eef_rpy_z_list.append(env.max_eef_rpy_z)
+        min_eef_rpy_z_list.append(env.min_eef_rpy_z)
+
         if (update%1) == 0:
             print("###################################################################################")
             print('[{}/{}] return : {:.3f}, value loss : {:.3f}, policy loss : {:.3f}, policy kl : {:.5f}, policy entropy : {:.3f}'.format(
@@ -339,29 +388,45 @@ def main():
         y_data_min_taxel1.append(np.mean(min_taxel1_list))
         y_data_max_taxel1.append(np.mean(max_taxel1_list))
 
+        y_data_step.append(np.mean(step_list))
+        y_data_min_act_correct.append(np.mean(min_act_correct_list))
+        y_data_max_act_correct.append(np.mean(max_act_correct_list))
+        y_data_max_eef_x.append(np.mean(max_eef_x_list))
+        y_data_min_eef_x.append(np.mean(min_eef_x_list))
+        y_data_max_eef_y.append(np.mean(max_eef_y_list))
+        y_data_min_eef_y.append(np.mean(min_eef_y_list))
+        y_data_max_eef_z.append(np.mean(max_eef_z_list))
+        y_data_min_eef_z.append(np.mean(min_eef_z_list))
+        y_data_max_eef_rpy_x.append(np.mean(max_eef_rpy_x_list))
+        y_data_min_eef_rpy_x.append(np.mean(min_eef_rpy_x_list))
+        y_data_max_eef_rpy_y.append(np.mean(max_eef_rpy_y_list))
+        y_data_min_eef_rpy_y.append(np.mean(min_eef_rpy_y_list))
+        y_data_max_eef_rpy_z.append(np.mean(max_eef_rpy_z_list))
+        y_data_min_eef_rpy_z.append(np.mean(min_eef_rpy_z_list))
+
         if (update%1) == 0:
-            ax1 = fig.add_subplot(3, 3, 1)
+            ax1 = fig.add_subplot(4, 3, 1)
             ax1.plot(x_data, y_data, 'r-')
             ax1.set_xlabel("episodes")
             ax1.set_ylabel("ave_return")
-            ax2 = fig.add_subplot(3, 3, 2)
+            ax2 = fig.add_subplot(4, 3, 2)
             ax2.plot(x_data_v, y_data_v, 'b-')
             ax2.set_xlabel("episodes")
             ax2.set_ylabel("ave_val_loss")
-            ax3 = fig.add_subplot(3, 3, 3)
+            ax3 = fig.add_subplot(4, 3, 3)
             ax3.plot(x_data_p, y_data_p, 'g-')
             ax3.set_xlabel("episodes")
             ax3.set_ylabel("ave_pol_loss")
-            ax4 = fig.add_subplot(3, 3, 4)
+            ax4 = fig.add_subplot(4, 3, 4)
             ax4.plot(x_data_e, y_data_e, 'c-')
             ax4.set_xlabel("episodes")
             ax4.set_ylabel("entropy")
-            ax5 = fig.add_subplot(3, 3, 5)
+            ax5 = fig.add_subplot(4, 3, 5)
             ax5.plot(x_data_k, y_data_k, 'r-')
             ax5.plot(x_data_k, y_data_d, 'b-')
             ax5.set_xlabel("episodes")
             ax5.set_ylabel("max_knob&door_rotation")
-            ax6 = fig.add_subplot(3, 3, 6)
+            ax6 = fig.add_subplot(4, 3, 6)
             ax6.plot(x_data_a, y_data_max_wrist3, 'r-', linestyle="solid")
             ax6.plot(x_data_a, y_data_min_wrist3, 'r-', linestyle="dashed")
             ax6.plot(x_data_a, y_data_max_wrist2, 'b-', linestyle="solid")
@@ -376,7 +441,7 @@ def main():
             ax6.plot(x_data_a, y_data_min_shp, 'k-', linestyle="dashed")
             ax6.set_xlabel("episodes")
             ax6.set_ylabel("max&min_action")
-            ax7 = fig.add_subplot(3, 3, 7)
+            ax7 = fig.add_subplot(4, 3, 7)
             ax7.plot(x_data_f, y_data_max_force_x, 'r-', linestyle="solid")
             ax7.plot(x_data_f, y_data_min_force_x, 'r-', linestyle="dashed")
             ax7.plot(x_data_f, y_data_max_force_y, 'b-', linestyle="solid")
@@ -385,7 +450,7 @@ def main():
             ax7.plot(x_data_f, y_data_min_force_z, 'g-', linestyle="dashed")
             ax7.set_xlabel("episodes")
             ax7.set_ylabel("max&min_force")
-            ax8 = fig.add_subplot(3, 3, 8)
+            ax8 = fig.add_subplot(4, 3, 8)
             ax8.plot(x_data_f, y_data_max_torque_x, 'r-', linestyle="solid")
             ax8.plot(x_data_f, y_data_min_torque_x, 'r-', linestyle="dashed")
             ax8.plot(x_data_f, y_data_max_torque_y, 'b-', linestyle="solid")
@@ -394,13 +459,37 @@ def main():
             ax8.plot(x_data_f, y_data_min_torque_z, 'g-', linestyle="dashed")
             ax8.set_xlabel("episodes")
             ax8.set_ylabel("max&min_torque")
-            ax9 = fig.add_subplot(3, 3, 9)
+            ax9 = fig.add_subplot(4, 3, 9)
             ax9.plot(x_data_f, y_data_max_taxel0, 'r-', linestyle="solid")
             ax9.plot(x_data_f, y_data_min_taxel0, 'r-', linestyle="dashed")
             ax9.plot(x_data_f, y_data_max_taxel1, 'b-', linestyle="solid")
             ax9.plot(x_data_f, y_data_min_taxel1, 'b-', linestyle="dashed")
             ax9.set_xlabel("episodes")
             ax9.set_ylabel("min&max_taxel0&1")
+            ax10 = fig.add_subplot(4, 3, 10)
+            ax10.plot(x_data_f, y_data_step, 'r-', linestyle="solid")
+            ax10.plot(x_data_f, y_data_max_act_correct, 'b-', linestyle="solid")
+            ax10.plot(x_data_f, y_data_min_act_correct, 'b-', linestyle="dashed")
+            ax10.set_xlabel("episodes")
+            ax10.set_ylabel("step&act_correct")
+            ax11 = fig.add_subplot(4, 3, 11)
+            ax11.plot(x_data_f, y_data_max_eef_x, 'r-', linestyle="solid")
+            ax11.plot(x_data_f, y_data_min_eef_x, 'r-', linestyle="dashed")
+            ax11.plot(x_data_f, y_data_max_eef_y, 'b-', linestyle="solid")
+            ax11.plot(x_data_f, y_data_min_eef_y, 'b-', linestyle="dashed")
+            ax11.plot(x_data_f, y_data_max_eef_z, 'g-', linestyle="solid")
+            ax11.plot(x_data_f, y_data_min_eef_z, 'g-', linestyle="dashed")
+            ax11.set_xlabel("episodes")
+            ax11.set_ylabel("max&min_eef_xyz")
+            ax12 = fig.add_subplot(4, 3, 12)
+            ax12.plot(x_data_f, y_data_max_eef_rpy_x, 'r-', linestyle="solid")
+            ax12.plot(x_data_f, y_data_min_eef_rpy_x, 'r-', linestyle="dashed")
+            ax12.plot(x_data_f, y_data_max_eef_rpy_y, 'b-', linestyle="solid")
+            ax12.plot(x_data_f, y_data_min_eef_rpy_y, 'b-', linestyle="dashed")
+            ax12.plot(x_data_f, y_data_max_eef_rpy_z, 'g-', linestyle="solid")
+            ax12.plot(x_data_f, y_data_min_eef_rpy_z, 'g-', linestyle="dashed")
+            ax12.set_xlabel("episodes")
+            ax12.set_ylabel("max&min_eef_rpy")
 
             fig.subplots_adjust(hspace=0.3, wspace=0.4)
             plt.draw()
