@@ -843,7 +843,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         panel_c = 50         #3 door panel open(+)
 
         force_c = 1         #6 over force limit1(-)
-        force_c2 = 1        #  over force limit2(-)
+        force_c2 = 50        #  over force limit2(-)
         taxel_c = 0          #7 release the knob(-)
         act_0_n = 10         #8 action[0] (+)
         act_1_n = 10          #  action[1] (+)
@@ -851,8 +851,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         act_3_n = 10          #  action[3] (+)
         act_4_n = 10          #  action[4] (+)
         act_5_n = 10          #  action[5] (+)
-        act_correct_c = 10  #9 act_correct (+)
-        catesian_xyz_c = 0.3      #10 cartesian (+)
+        act_correct_c = 100  #9 act_correct (+)
+        catesian_xyz_c = 1      #10 cartesian (+)
         catesian_rpy_c = 0.3
         cartesian_c = 3             #   bonus (+)
         compute_rewards = 0.0001

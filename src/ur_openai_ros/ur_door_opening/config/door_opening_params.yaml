@@ -18,9 +18,9 @@ ML:
   nupdates: 1000
 
   act_step: 1 # 30
-  sub_step: 20
+  sub_step: 30
   save_step: 10
-  maxlen_num: 3
+  maxlen_num: 10
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
