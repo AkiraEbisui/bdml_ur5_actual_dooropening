@@ -5,8 +5,8 @@ ML:
   n_act: 6
   epochs: 10
   hdim: 64
-  policy_lr: 1e-3
-  value_lr: 1e-3
+  policy_lr: 1e-4
+  value_lr: 1e-4
   max_std: 1.0
   clip_range: 0.2
   n_step: 16 # 1000
@@ -18,12 +18,15 @@ ML:
   nupdates: 1000
 
   act_step: 1 # 30
-  sub_step: 30
+  sub_step: 2
   save_step: 10
   maxlen_num: 10
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
+
+# Output type
+moveit: off  # on or off
 
 # Limit
 force_limit1: 15 # 15 when using only wrist_3
@@ -35,7 +38,7 @@ max_static_limit:  0.4 #  0.1 when using only wrist_3
 
 # act
 act_params:
- dt_act: 0.5
+ dt_act: 1
  dt_reset: 1
 
 # normarizing parameters for observations
@@ -94,13 +97,29 @@ init_joint_pose1:
   wr2: -1.4199836765311638
   wr3: 1.5702616267031195
 
+init_pose1:
+  x: -0.0885099948719
+  y: 0.26240898805
+  z: 0.276761238126
+  r: 1.5726264661147165
+  p: 0.01579000143745326
+  y: 1.5912448543568674
+
 init_joint_pose2:
-  shp: 1.4914358562995678
-  shl: -1.4309883592541488
-  elb: 2.4144281080217893
-  wr1: 2.1727191706904554
-  wr2: -1.4692292654987007
-  wr3: 1.5707477068653029
+  shp: 1.491407573528791
+  shl: -1.434487752926512
+  elb: 2.413675198293162
+  wr1: 2.177423014918695
+  wr2: -1.4691158467941916
+  wr3: 1.5733145480767723
+
+init_pose2:
+  x: -0.0885606971807
+  y: 0.367100554257
+  z: 0.278060295058
+  r: 1.5746781585880325
+  p: 0.01488937165698871
+  y: 1.5931206693388063
 
 far_pose:
   shp: 1.4410264033536153
@@ -127,7 +146,7 @@ close_door_pose:
   wr3: 1.5706990988490845
 
 init_grp_pose1: 0
-init_grp_pose2: 120
+init_grp_pose2: 88  # 120
 
 joint_limits_array:
   shp_max: 3.14

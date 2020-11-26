@@ -42,7 +42,7 @@ class RobotiqInterface:
         self.command.rACT = 1
         self.command.rGTO = 1
         self.command.rSP  = 180
-        self.command.rFR  = 150
+        self.command.rFR  = 25
         self.gripper_pub.publish(self.command)
 
 

@@ -6,7 +6,7 @@
   <arg name="controller" default="traj_pos"/>  <!-- 'pos' or 'traj_pos' or 'vel' or 'traj_vel'-->
   <arg name="min_payload" default="0"/>
   <arg name="max_payload" default="10.0"/>
-  <arg name="max_velocity" default="0.1"/>
+  <arg name="max_velocity" default="0.2"/> <!-- Default: 0.1, MoveIt: >0.2 -->
  <!-- rt_imu parameters -->
   <arg name="port" default="/dev/ttyACM0" />
   <arg name="frame_id" default="imu_link" />
@@ -41,16 +41,16 @@
   <node pkg="robotiq_ft_sensor" type="rq_sensor" name="rq_sensor" required="true" output="screen">
   </node>
 
-  <!-- Load moveit planner
+  <!-- Load moveit planner  -->
   <include file="$(find ur5_moveit_config)/launch/ur5_moveit_planning_execution.launch">
     <arg name="limited" value="true"/>
-  </include>  -->
+  </include>
 
-  <!-- Run Rviz and load the default config to see the state of the move_group node
+  <!-- Run Rviz and load the default config to see the state of the move_group node -->
   <include file="$(find ur5_moveit_config)/launch/moveit_rviz.launch">
     <arg name="config" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
-  </include> -->
+  </include>
 
   <!-- Load the parameters for the algorithm -->
   <rosparam command="load" file="$(find ur_door_opening)/config/door_opening_params.yaml" />

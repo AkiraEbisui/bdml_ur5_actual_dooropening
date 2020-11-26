@@ -34,24 +34,21 @@ class UR5Interface:
     joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                    'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 
-#    joint_values_home = [1.5450898256183896, -1.810624635807664, 2.258478488681325, 
-#                        -2.0176230710216156, -1.5706590472860515, 3.1148891041905493]
-
-#    joint_values_calib = [1.544891846222953, -1.8106006673578534, 2.258661677945332, 
-#                      -2.0195989461345256, -1.5703836018608142, 2.3299036774634354]
+    joint_values_home = [1.5450898256183896, -1.810624635807664, 2.258478488681325, 
+                        -2.0176230710216156, -1.5706590472860515, 3.1148891041905493]
 
     def __init__(self):
         self.robot = moveit_commander.RobotCommander()
         self.scene = moveit_commander.PlanningSceneInterface()
         self.group = moveit_commander.MoveGroupCommander("manipulator")
 
-#        self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
-#                                                        moveit_msgs.msg.DisplayTrajectory,
-#                                                        queue_size=20)
+        self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
+                                                        moveit_msgs.msg.DisplayTrajectory,
+                                                        queue_size=20)
 
-#        self.goal_state_publisher = rospy.Publisher('/rviz/moveit/update_custom_goal_state',
-#                                                        moveit_msgs.msg.RobotState,
-#                                                        queue_size=20)
+        self.goal_state_publisher = rospy.Publisher('/rviz/moveit/update_custom_goal_state',
+                                                        moveit_msgs.msg.RobotState,
+                                                        queue_size=20)
 
         # Walls are defined with respect to the coordinate frame of the robot base, with directions 
         # corresponding to standing behind the robot and facing into the table.
@@ -64,8 +61,7 @@ class UR5Interface:
         table_pose.header = header
         table_pose.pose.position.x = 0
         table_pose.pose.position.y = 0
-        table_pose.pose.position.z = 0.25
-#        table_pose.pose.position.z = -0.0001
+        table_pose.pose.position.z = -0.0001
         self.scene.remove_world_object('table')
         self.scene.add_plane(name='table', pose=table_pose, normal=(0, 0, 1))
         back_pose = PoseStamped()
@@ -96,27 +92,26 @@ class UR5Interface:
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^
         # We can get the name of the reference frame for this robot:
         planning_frame = self.group.get_planning_frame()
-#        print "============ Reference frame: %s" % planning_frame
+        print "============ Reference frame: %s" % planning_frame
 
         # We can also print the name of the end-effector link for this group:
         eef_link = self.group.get_end_effector_link()
-#        print "============ End effector: %s" % eef_link
+        print "============ End effector: %s" % eef_link
 
         # We can get a list of all the groups in the robot:
         group_names = self.robot.get_group_names()
-#        print "============ Robot Groups:", self.robot.get_group_names()
+        print "============ Robot Groups:", self.robot.get_group_names()
 
         # Sometimes for debugging it is useful to print the entire state of the
         # robot:
-#        print "============ Printing robot state"
-#        print self.robot.get_current_state()
-#        print ""
+        print "============ Printing robot state"
+        print self.robot.get_current_state()
+        print ""
 
         self.group.set_max_acceleration_scaling_factor(0.1)
         self.group.set_max_velocity_scaling_factor(0.1)
-#        print "============ Set a max acceleration value of 0.1"
-#        print "============ Set a max velocity value of 0.1"
-
+        print "============ Set a max acceleration value of 0.1"
+        print "============ Set a max velocity value of 0.1"
 
     def check_joint_limits(self):
         """ function to check that the urdf loaded is specifying
@@ -129,10 +124,13 @@ class UR5Interface:
 
         return True
 
-    '''
     def get_pose(self):
         """ get robot end effector pose """
         return self.group.get_current_pose().pose
+
+    def get_rpy(self):
+        """ get robot end effector rpy """
+        return self.group.get_current_rpy()
 
     def get_pose_array(self):
         """ get robot end effector pose as two arrays of position and
@@ -152,6 +150,22 @@ class UR5Interface:
         """ go to robot end effector home pose """
         self.goto_joint_target(self.joint_values_home, wait=wait)
 
+    def goto_before_grasp_pose(self, wait=False):
+        """ go to robot end effector before grasp """
+        self.goto_joint_target(self.joint_values_before_grasp, wait=wait)
+
+    def goto_grasp_position_pose(self, wait=False):
+        """ go to robot end effector grasp position pose """
+        self.goto_joint_target(self.joint_values_grasp_position, wait=wait)
+
+    def goto_rotate_pose(self, wait=False):
+        """ go to robot end effector rotate pose """
+        self.goto_joint_target(self.joint_values_rotate, wait=wait)
+
+    def goto_spec_pose(self, wait=True):
+        """ go to robot spec pose """
+        self.goto_joint_target(self.joint_values_spec, wait=wait)
+
     def goto_calib_home_pose(self):
         """ go to robot end effector home pose for calibration.
             This is basically the same as the home pose but the 
@@ -160,7 +174,7 @@ class UR5Interface:
         """
         self.goto_joint_target(self.joint_values_calib, wait=True)
 
-    def goto_pose_target(self, pose, wait=True):
+    def goto_pose_target(self, pose, wait=False):
         """ go to robot end effector pose target """
         self.group.set_pose_target(pose)
         # simulate in rviz then ask user for feedback
@@ -221,4 +235,3 @@ class UR5Interface:
         robot_goal_state = moveit_msgs.msg.RobotState()
         robot_goal_state.joint_state.position = plan.joint_trajectory.points[-1].positions
         self.goal_state_publisher.publish(robot_goal_state)
-    '''

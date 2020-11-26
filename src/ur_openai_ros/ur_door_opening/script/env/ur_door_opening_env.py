@@ -83,7 +83,9 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         # Gets training parameters from param server
         self.observations = rospy.get_param("/observations")
-        
+        self.init_grp_pose1 = rospy.get_param("/init_grp_pose1")
+        self.init_grp_pose2 = rospy.get_param("/init_grp_pose2")
+
         # Joint limitation
         shp_max = rospy.get_param("/joint_limits_array/shp_max")
         shp_min = rospy.get_param("/joint_limits_array/shp_min")
@@ -169,9 +171,31 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         close_door_pose = self.init_joints_pose(self.close_door_pose)
         self.arr_close_door_pose = np.array(close_door_pose, dtype='float32')
 
+        # cartesian
+        init_pose1_x = rospy.get_param("/init_pose1/x")
+        init_pose1_y = rospy.get_param("/init_pose1/y")
+        init_pose1_z = rospy.get_param("/init_pose1/z")
+        init_pose1_rpy_r = rospy.get_param("/init_pose1/rpy_r")
+        init_pose1_rpy_p = rospy.get_param("/init_pose1/rpy_p")
+        init_pose1_rpy_y = rospy.get_param("/init_pose1/rpy_y")
+        init_pose1 = [init_pose1_x, init_pose1_y, init_pose1_z, init_pose1_rpy_r, init_pose1_rpy_p, init_pose1_rpy_y]
+        self.arr_init_pose1 = np.array(init_pose1, dtype='float32')
+
+        init_pose2_x = rospy.get_param("/init_pose2/x")
+        init_pose2_y = rospy.get_param("/init_pose2/y")
+        init_pose2_z = rospy.get_param("/init_pose2/z")
+        init_pose2_rpy_r = rospy.get_param("/init_pose2/rpy_r")
+        init_pose2_rpy_p = rospy.get_param("/init_pose2/rpy_p")
+        init_pose2_rpy_y = rospy.get_param("/init_pose2/rpy_y")
+        init_pose2 = [init_pose2_x, init_pose2_y, init_pose2_z, init_pose2_rpy_r, init_pose2_rpy_p, init_pose2_rpy_y]
+        self.arr_init_pose2 = np.array(init_pose2, dtype='float32')
+
         # Controller type for ros_control
         self._ctrl_type =  rospy.get_param("/control_type")
         self.pre_ctrl_type =  self._ctrl_type
+
+        # Use MoveIt or not
+        self.moveit = rospy.get_param("/moveit")
 
 	# Get the force and troque limit
         self.force_limit1 = rospy.get_param("/force_limit1")
@@ -541,7 +565,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 	# 1st: Go to initial position
         rospy.logdebug("set_init_pose init variable...>>>" + str(self.init_joint_pose1))
 
-        self.gripper.goto_gripper_pos(0, False)
+        self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
         time.sleep(1)
         self.jointpub.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
         self.jointpub.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
@@ -603,7 +627,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.max_eef_rpy_z = 0
         self.min_eef_rpy_z = 0
 
-        self.gripper.goto_gripper_pos(0, False)
+        self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
         time.sleep(1)
 #        self.jointpub.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
 #        self.jointpub.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
@@ -627,7 +651,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # 4th: Go to start position.
         self.jointpub.FollowJointTrajectoryCommand_reset(self.arr_init_pos2)
         time.sleep(1)
-        self.gripper.goto_gripper_pos(120, False)
+        self.gripper.goto_gripper_pos(self.init_grp_pose2, False)
         time.sleep(1)
 
         # 5th: Get the State Discrete Stringuified version of the observations
@@ -645,8 +669,11 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
     def _act(self, action):
         if self._ctrl_type == 'traj_pos':
-            self.pre_ctrl_type = 'traj_pos'
-            self._joint_traj_pubisher.FollowJointTrajectoryCommand(action)
+            if self.moveit == 'off':
+                self.pre_ctrl_type = 'traj_pos'
+                self._joint_traj_pubisher.FollowJointTrajectoryCommand(action)
+            elif self.moveit == 'on':
+                self._joint_traj_pubisher.MoveItCommand(action)
         elif self._ctrl_type == 'pos':
             self.pre_ctrl_type = 'pos'
             self._joint_pubisher.move_joints(action)

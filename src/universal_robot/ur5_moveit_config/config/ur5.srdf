@@ -32,6 +32,30 @@
         <joint name="wrist_2_joint" value="0" />
         <joint name="wrist_3_joint" value="0" />
     </group_state>
+    <group_state name="before_grasp" group="manipulator">
+        <joint name="elbow_joint" value="2.6771635884219136" />
+        <joint name="shoulder_lift_joint" value="-1.6883855417730604" />
+        <joint name="shoulder_pan_joint" value="1.4410264033536153" />
+        <joint name="wrist_1_joint" value="2.1674968289716623" />
+        <joint name="wrist_2_joint" value="-1.4199836765311638" />
+        <joint name="wrist_3_joint" value="1.5702616267031195" />
+    </group_state>
+    <group_state name="grasp_position" group="manipulator">
+        <joint name="elbow_joint" value="2.413675198293162" />
+        <joint name="shoulder_lift_joint" value="-1.434487752926512" />
+        <joint name="shoulder_pan_joint" value="1.491407573528791" />
+        <joint name="wrist_1_joint" value="2.177423014918695" />
+        <joint name="wrist_2_joint" value="-1.4691158467941916" />
+        <joint name="wrist_3_joint" value="1.5733145480767723" />
+    </group_state>
+    <group_state name="after_rotate" group="manipulator">
+        <joint name="elbow_joint" value="2.413675198293162" />
+        <joint name="shoulder_lift_joint" value="-1.434487752926512" />
+        <joint name="shoulder_pan_joint" value="1.491407573528791" />
+        <joint name="wrist_1_joint" value="2.177423014918695" />
+        <joint name="wrist_2_joint" value="-1.4691158467941916" />
+        <joint name="wrist_3_joint" value="2.5707477068653029" />
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="moveit_ee" parent_link="ee_link" group="endeffector" />
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->

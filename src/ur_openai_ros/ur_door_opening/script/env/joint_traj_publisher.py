@@ -13,8 +13,16 @@ from geometry_msgs.msg import Vector3
 from trajectory_msgs.msg import JointTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 
+# MoveIt
+import os
+import sys
+import numpy as np
+
+from ur5_interface_for_door import UR5Interface
+
 dt_act = rospy.get_param("/act_params/dt_act")
 dt_reset = rospy.get_param("/act_params/dt_reset")
+moveit = rospy.get_param("/moveit")
 
 class JointTrajPub(object):
     def __init__(self):
@@ -23,6 +31,13 @@ class JointTrajPub(object):
         print "Waiting for server..."
         client.wait_for_server()
         print "Connected to server"
+
+        if moveit == 'on':
+            rospy.init_node("test_move_ur5_continuous", anonymous=True, disable_signals=True)
+            ur5 = UR5Interface()
+            # MoveIt! works well if joint limits are smaller (within -pi, pi)
+            if not ur5.check_joint_limits():
+                raise Exception('Bad joint limits! try running roslaunch with option "limited:=true"')
 
     def check_publishers_connection(self):
     	"""
@@ -100,7 +115,8 @@ class JointTrajPub(object):
 
         except rospy.ROSInterruptException: pass
 
-#        except KeyboardInterrupt:
-#            rospy.signal_shutdown("KeyboardInterrupt")
-#            rospy.spin()
-#            raise
+    def MoveItCommand(self, pose):
+        try:            
+            ur5.goto_pose_target(pose)
+        except rospy.ROSInterruptException: pass
+
