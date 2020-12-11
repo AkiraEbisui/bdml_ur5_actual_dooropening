@@ -149,7 +149,19 @@ def debug_ur5():
     current_value = ur5.get_joint_values()
     print("joint_values", current_value)
 
-curr_demo = 2
+def test():
+    # Initialize the ros node
+    rospy.init_node("test", anonymous=True, disable_signals=True)
+
+    # Instantiage the UR5 interface.
+    ur5 = UR5Interface()
+
+    print(ur5.get_rpy())
+    print(ur5.get_pose())
+    print(ur5.get_joint_values())
+#    print(ur5.get_pose_array())    
+
+curr_demo = 6
 if __name__ == '__main__': 
     if (curr_demo == 1):
         test_move_home()
@@ -161,4 +173,6 @@ if __name__ == '__main__':
         test_move_ur5_continuous()
     elif (curr_demo == 5):
         debug_ur5()
+    elif (curr_demo == 6):
+        test()
 

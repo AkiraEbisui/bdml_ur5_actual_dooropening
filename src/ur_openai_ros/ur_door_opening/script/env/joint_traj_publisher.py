@@ -19,10 +19,11 @@ import sys
 import numpy as np
 
 from ur5_interface_for_door import UR5Interface
+from robotiq_interface_for_door import RobotiqInterface
 
+moveit = rospy.get_param("/moveit")
 dt_act = rospy.get_param("/act_params/dt_act")
 dt_reset = rospy.get_param("/act_params/dt_reset")
-moveit = rospy.get_param("/moveit")
 
 class JointTrajPub(object):
     def __init__(self):
@@ -115,8 +116,29 @@ class JointTrajPub(object):
 
         except rospy.ROSInterruptException: pass
 
-    def MoveItCommand(self, pose):
-        try:            
-            ur5.goto_pose_target(pose)
+    def MoveItCommand(self, action):
+        try:
+            self.ur5 = UR5Interface()
+            self.ur5.goto_pose_target(action, False)
+        except rospy.ROSInterruptException: pass
+
+    def MoveItJointTarget(self, joint_array):
+        try:
+            self.ur5 = UR5Interface()
+            self.ur5.goto_joint_target(joint_array, False)
+        except rospy.ROSInterruptException: pass
+
+    def MoveItGrpOpen(self):
+        try:
+            self.grp = moveit_commander.MoveGroupCommander("gripper")
+            self.grp.set_named_target('open')
+            self.grp.go(wait=False)
+        except rospy.ROSInterruptException: pass
+
+    def MoveItGrpClose(self):
+        try:
+            self.grp = moveit_commander.MoveGroupCommander("gripper")
+            self.grp.set_named_target('close0.31')
+            self.grp.go(wait=False)
         except rospy.ROSInterruptException: pass
 

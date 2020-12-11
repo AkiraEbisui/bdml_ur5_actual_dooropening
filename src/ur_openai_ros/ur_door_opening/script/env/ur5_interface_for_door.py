@@ -61,9 +61,16 @@ class UR5Interface:
         table_pose.header = header
         table_pose.pose.position.x = 0
         table_pose.pose.position.y = 0
-        table_pose.pose.position.z = -0.0001
+        table_pose.pose.position.z = 0.02 # -0.0001
         self.scene.remove_world_object('table')
         self.scene.add_plane(name='table', pose=table_pose, normal=(0, 0, 1))
+        upper_pose = PoseStamped()
+        upper_pose.header = header
+        upper_pose.pose.position.x = 0
+        upper_pose.pose.position.y = 0
+        upper_pose.pose.position.z = 0.62 # Optimized (0.55 NG)
+        self.scene.remove_world_object('upper')
+        self.scene.add_plane(name='upper', pose=upper_pose, normal=(0, 0, 1))
         back_pose = PoseStamped()
         back_pose.header = header
         back_pose.pose.position.x = 0
@@ -73,7 +80,7 @@ class UR5Interface:
         self.scene.add_plane(name='backWall', pose=back_pose, normal=(0, 1, 0))
         right_pose = PoseStamped()
         right_pose.header = header
-        right_pose.pose.position.x = 0.2
+        right_pose.pose.position.x = 0.5  # 0.2
         right_pose.pose.position.y = 0
         right_pose.pose.position.z = 0
         self.scene.remove_world_object('rightWall')
@@ -86,32 +93,32 @@ class UR5Interface:
         self.scene.remove_world_object('leftWall')
         self.scene.add_plane(name='leftWall', pose=left_pose, normal=(1, 0, 0))
         rospy.sleep(0.6)
-        rospy.loginfo(self.scene.get_known_object_names())
+#        rospy.loginfo(self.scene.get_known_object_names())
 
         ## Getting Basic Information
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^
         # We can get the name of the reference frame for this robot:
         planning_frame = self.group.get_planning_frame()
-        print "============ Reference frame: %s" % planning_frame
+#        print "============ Reference frame: %s" % planning_frame
 
         # We can also print the name of the end-effector link for this group:
         eef_link = self.group.get_end_effector_link()
-        print "============ End effector: %s" % eef_link
+#        print "============ End effector: %s" % eef_link
 
         # We can get a list of all the groups in the robot:
         group_names = self.robot.get_group_names()
-        print "============ Robot Groups:", self.robot.get_group_names()
+#        print "============ Robot Groups:", self.robot.get_group_names()
 
         # Sometimes for debugging it is useful to print the entire state of the
         # robot:
-        print "============ Printing robot state"
-        print self.robot.get_current_state()
-        print ""
+#        print "============ Printing robot state"
+#        print self.robot.get_current_state()
+#        print ""
 
         self.group.set_max_acceleration_scaling_factor(0.1)
         self.group.set_max_velocity_scaling_factor(0.1)
-        print "============ Set a max acceleration value of 0.1"
-        print "============ Set a max velocity value of 0.1"
+#        print "============ Set a max acceleration value of 0.1"
+#        print "============ Set a max velocity value of 0.1"
 
     def check_joint_limits(self):
         """ function to check that the urdf loaded is specifying
@@ -179,7 +186,7 @@ class UR5Interface:
         self.group.set_pose_target(pose)
         # simulate in rviz then ask user for feedback
         plan = self.group.plan()
-        self.display_trajectory(plan)
+#        self.display_trajectory(plan)
         if (wait == True):
             print("============ Press `Enter` to execute the movement ...")
             raw_input()
@@ -207,7 +214,7 @@ class UR5Interface:
         self.group.set_joint_value_target(joint_vals)
         # simulate in rviz then ask user for feedback
         plan = self.group.plan()
-        self.display_trajectory(plan)
+#        self.display_trajectory(plan)
         if (wait == True):
             print("============ Press `Enter` to execute the movement ...")
             raw_input()

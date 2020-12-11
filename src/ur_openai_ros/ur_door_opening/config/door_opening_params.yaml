@@ -5,11 +5,11 @@ ML:
   n_act: 6
   epochs: 10
   hdim: 64
-  policy_lr: 1e-4
-  value_lr: 1e-4
+  policy_lr: 1e-3
+  value_lr: 1e-3
   max_std: 1.0
   clip_range: 0.2
-  n_step: 16 # 1000
+  n_step: 16 # 16
 
   gamma: 0.99
   lam: 0.98
@@ -18,18 +18,18 @@ ML:
   nupdates: 1000
 
   act_step: 1 # 30
-  sub_step: 2
-  save_step: 10
-  maxlen_num: 10
+  sub_step: 2 # 3
+  save_step: 20
+  maxlen_num: 10 # 10
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
 
 # Output type
-moveit: off  # on or off
+moveit: 0  # on:1 or off:0
 
 # Limit
-force_limit1: 15 # 15 when using only wrist_3
+force_limit1: 20 # 15 when using only wrist_3
 torque_limit1: 2 #  2 when using only wrist_3
 force_limit2: 30 # 300 ~ over 1000 in position control
 torque_limit2: 4 # 30 ~  in position control
@@ -97,13 +97,13 @@ init_joint_pose1:
   wr2: -1.4199836765311638
   wr3: 1.5702616267031195
 
-init_pose1:
+init_pose1: 
   x: -0.0885099948719
   y: 0.26240898805
   z: 0.276761238126
-  r: 1.5726264661147165
-  p: 0.01579000143745326
-  y: 1.5912448543568674
+  rpy_r: 1.5726264661147165
+  rpy_p: 0.01579000143745326
+  rpy_y: 1.5912448543568674
 
 init_joint_pose2:
   shp: 1.491407573528791
@@ -117,9 +117,41 @@ init_pose2:
   x: -0.0885606971807
   y: 0.367100554257
   z: 0.278060295058
-  r: 1.5746781585880325
-  p: 0.01488937165698871
-  y: 1.5931206693388063
+  rpy_r: 1.5746781585880325
+  rpy_p: 0.01488937165698871
+  rpy_y: 1.5731206693388063
+
+after_rotate_pose:
+  shp: 1.491407573528791
+  shl: -1.434487752926512
+  elb: 2.413675198293162
+  wr1: 2.177423014918695
+  wr2: -1.4691158467941916
+  wr3: 2.5733145480767723
+
+after_rotate_xyz:
+  x: -0.0885606971807
+  y: 0.367100554257
+  z: 0.278060295058
+  rpy_r: 1.5746781585880325
+  rpy_p: 0.01488937165698871
+  rpy_y: 2.5731206693388063
+
+after_pull_pose:
+  shp: 1.648087725653139
+  shl: -1.4969974700328346
+  elb: 2.498128485003836
+  wr1: 2.1563878359790927
+  wr2: -1.7477778260118484
+  wr3: 2.5733145480767723
+
+after_pull_xyz:
+  x: -0.119503224332
+  y: 0.317118121264
+  z: 0.276059107781
+  rpy_r: 2.5706315470591077
+  rpy_p: 0.015724591329912007
+  rpy_y: 1.4710841122970895
 
 far_pose:
   shp: 1.4410264033536153
@@ -129,6 +161,14 @@ far_pose:
   wr2: -1.4199836765311638
   wr3: 1.5702616267031195
 
+far_xyz:
+  x: -0.0882767832034
+  y: 0.263018508941
+  z: 0.277032908416
+  rpy_r: 1.5726244019375042
+  rpy_p: 0.014866180890913027
+  rpy_y: 1.591637731017009
+
 before_close_pose:
   shp: 1.5857990679615237
   shl: -1.5611849786259067
@@ -136,6 +176,14 @@ before_close_pose:
   wr1: 2.151942347671375
   wr2: -1.5845770347385386
   wr3: 1.5712500016837836
+
+before_close_xyz:
+  x: -0.112115043686
+  y: 0.299623650373
+  z: 0.280956272646
+  rpy_r: 1.5710717414706301
+  rpy_p: 2.6976262816368855e-06
+  rpy_y: 1.5723744353083362
 
 close_door_pose:
   shp: 1.4974456350976515
@@ -145,8 +193,19 @@ close_door_pose:
   wr2: -1.4775036417585037
   wr3: 1.5706990988490845
 
+close_door_xyz:
+  x: -0.0886703820767
+  y: 0.392086764032
+  z: 0.277136118121
+  rpy_r: 1.57211744364666
+  rpy_p: 0.014296212698732096
+  rpy_y: 1.5907502956467094
+
 init_grp_pose1: 0
-init_grp_pose2: 88  # 120
+init_grp_pose2: 81  ## 77
+# roundknob1&neoprene=88
+# roundknob1&neoprene=77
+# default=120
 
 joint_limits_array:
   shp_max: 3.14
@@ -178,11 +237,18 @@ joint_velocity_limits_array:
 
 cartesian_limits:  # default #On the surface plate
   x_max: -0.08     # -0.08   #  0.2
-  x_min: -0.10     # -0.11   # -0.45
-  y_max: 0.425     #  0.425  #  0.7
-  y_min: 0.35      #  0.35   # -0.25
-  z_max: 0.29      #  0.31   #  2
-  z_min: 0.27      #  0.26   #  0.15
+  x_min: -0.125     # -0.11   # -0.45
+  y_max: 0.375      #  0.425  #  0.7
+  y_min: 0.31      #  0.35   # -0.25
+  z_max: 0.28      #  0.31   #  2
+  z_min: 0.274      #  0.26   #  0.15
+
+  rpy_x_max: 3
+  rpy_x_min: 1.5
+  rpy_y_max: 0.02
+  rpy_y_min: 0.01
+  rpy_z_max: 1.60
+  rpy_z_min: 1.44
 
 #episode_done_criteria:
 #  - panel_10deg

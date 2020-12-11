@@ -6,7 +6,7 @@
   <arg name="controller" default="traj_pos"/>  <!-- 'pos' or 'traj_pos' or 'vel' or 'traj_vel'-->
   <arg name="min_payload" default="0"/>
   <arg name="max_payload" default="10.0"/>
-  <arg name="max_velocity" default="0.2"/> <!-- Default: 0.1, MoveIt: >0.2 -->
+  <arg name="max_velocity" default="0.3"/> <!-- Default: 0.1, MoveIt: >0.2 -->
  <!-- rt_imu parameters -->
   <arg name="port" default="/dev/ttyACM0" />
   <arg name="frame_id" default="imu_link" />
