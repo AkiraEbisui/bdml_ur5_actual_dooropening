@@ -59,6 +59,32 @@ max_std = rospy.get_param("/ML/max_std")
 clip_range = rospy.get_param("/ML/clip_range")
 n_step = rospy.get_param("/ML/n_step")
 sub_step = rospy.get_param("/ML/sub_step")
+act_add = rospy.get_param("/ML/act_add")
+
+sub_a0 = rospy.get_param("/act_params/sub_a0")
+sub_a1 = rospy.get_param("/act_params/sub_a1")
+sub_a2 = rospy.get_param("/act_params/sub_a2")
+sub_a3 = rospy.get_param("/act_params/sub_a3")
+sub_a4 = rospy.get_param("/act_params/sub_a4")
+sub_a5 = rospy.get_param("/act_params/sub_a5")
+
+knob_c = rospy.get_param("/reward_params/knob_c")
+knob_bonus_c = rospy.get_param("/reward_params/knob_bonus_c")
+panel_c = rospy.get_param("/reward_params/panel_c")
+panel_b_c = rospy.get_param("/reward_params/panel_b_c")
+force_c = rospy.get_param("/reward_params/force_c")
+force_c2 = rospy.get_param("/reward_params/force_c2")
+taxel_c = rospy.get_param("/reward_params/taxel_c")
+act_0_n = rospy.get_param("/reward_params/act_0_n")
+act_1_n = rospy.get_param("/reward_params/act_1_n")
+act_2_n = rospy.get_param("/reward_params/act_2_n")
+act_3_n = rospy.get_param("/reward_params/act_3_n")
+act_4_n = rospy.get_param("/reward_params/act_4_n")
+act_5_n = rospy.get_param("/reward_params/act_5_n")
+act_correct_c = rospy.get_param("/reward_params/act_correct_c")
+catesian_xyz_c = rospy.get_param("/reward_params/catesian_xyz_c")
+catesian_rpy_c = rospy.get_param("/reward_params/catesian_rpy_c")
+cartesian_c = rospy.get_param("/reward_params/cartesian_c")
 
 rospy.loginfo("register...")
 #register the training environment in the gym as an available one
@@ -633,6 +659,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
     def first_reset(self):
 	# 1st: Go to initial position
         rospy.logdebug("set_init_pose init variable...>>>" + str(self.init_joint_pose1))
+        self.knob_rpy_ini = copy.deepcopy(self.microstrain_imu.linear_acceleration.y / 9.8 * 1.57)
+        self.door_rpy_ini = copy.deepcopy(self.rt_imu.linear_acceleration.z / 9.8 * 1.57)
 
         if self.moveit ==0:
             self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
@@ -642,9 +670,9 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
             self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_init_pos1)
         elif self.moveit ==1:
-            self.jointtrajpub.MoveItCommand(self.far_xyz)
-            self.jointtrajpub.MoveItCommand(self.before_close_xyz)
-            self.jointtrajpub.MoveItCommand(self.close_door_xyz)
+#            self.jointtrajpub.MoveItCommand(self.far_xyz)
+#            self.jointtrajpub.MoveItCommand(self.before_close_xyz)
+#            self.jointtrajpub.MoveItCommand(self.close_door_xyz)
             self.jointtrajpub.MoveItJointTarget(self.init_pos1)
 
     # Resets the state of the environment and returns an initial observation.
@@ -702,7 +730,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.max_eef_rpy_z = 0
         self.min_eef_rpy_z = 0
         self.act_correct_n = 0
-        self.act_end = 0
         self.delta_force_x = 0
         self.delta_force_y = 0
         self.delta_force_z = 0
@@ -713,7 +740,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if self.moveit ==0:
             self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
             time.sleep(1)
-
 #            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
 #            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
             self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
@@ -723,7 +749,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
             time.sleep(1)
 #            self.jointtrajpub.MoveItCommand(self.far_xyz)
 #            self.jointtrajpub.MoveItCommand(self.before_close_xyz)
-#            self.jointtrajpub.MoveItCommand(self.close_door_xyz)
+            self.jointtrajpub.MoveItCommand(self.close_door_xyz)
 #            self.jointtrajpub.MoveItJointTarget(self.init_pos1)
 
         # 2nd: Check all subscribers work.
@@ -733,11 +759,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # 3rd: Get the initial state.
         self.force = self.wrench_stamped.wrench.force
         self.torque = self.wrench_stamped.wrench.torque
-
-        self.knob_rpy_ini = copy.deepcopy(self.microstrain_imu.linear_acceleration.y / 9.8 * 1.57)
-#        self.quat = self.rt_imu.orientation
-#        self.door_rpy_ini = copy.deepcopy(self.cvt_quat_to_euler(self.quat))
-        self.door_rpy_ini = copy.deepcopy(self.rt_imu.linear_acceleration.y / 9.8 * 1.57)
         self.force_ini = copy.deepcopy(self.force)
         self.torque_ini = copy.deepcopy(self.torque)
 
@@ -805,18 +826,40 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # we perform the corresponding movement of the robot
         # Act
 
+        self.act_end = 0
+        mod_action = np.array((0, 0, 0, 0, 0, 0), dtype='float32')
+#        print("mod_action", mod_action, type(mod_action), mod_action.shape)
+        current_joint_value = self.get_joint_value()
+        arr_current_joint_value = np.array(current_joint_value)
+
         for x in range(1, sub_step + 1):
             self.cartesian_flag = 0
-            sub_action = np.array(action) / sub_step * x
+            self.min_static_taxel0 = 0
+            self.min_static_taxel1 = 0
+            self.max_static_taxel0 = 0
+            self.max_static_taxel1 = 0
+            action = np.array(action)
+#            sub_action = np.array(action) / sub_step * x
 
             if self.moveit == 0:
-                sub_action[0] = sub_action[0] / 20
-                sub_action[1] = sub_action[1] / 45
-                sub_action[2] = sub_action[2] / 30
-                sub_action[3] = sub_action[3] / 60
-                sub_action[4] = sub_action[4] / 10
-                sub_action[5] = sub_action[5] * 2
-                sub_action = sub_action + self.arr_init_pos2
+                mod_action[0] = action[0] / sub_a0
+                mod_action[1] = action[1] / sub_a1
+                mod_action[2] = action[2] / sub_a2
+                mod_action[3] = action[3] / sub_a3
+                mod_action[4] = action[4] / sub_a4
+                mod_action[5] = action[5] / sub_a5
+
+                if act_add == 0:
+                    goal_action = mod_action + self.arr_init_pos2 # goal
+                    delta_action = goal_action - arr_current_joint_value
+                    sub_action = delta_action / sub_step * x + arr_current_joint_value
+                    print("sub_x", x)
+                if act_add == 1:
+                    delta_action = mod_action
+                    sub_action = delta_action / sub_step * x + arr_current_joint_value
+                    print("add_sub_x", x)
+#                print("@sub_action", sub_action)
+#                sub_action = sub_action + arr_current_joint_value
 
 # after rotate(shp,shl,elb,wr1,wr2,wr3)
 #                sub_action[0] = 1.491407573528791
@@ -824,7 +867,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #                sub_action[2] = 2.413675198293162
 #                sub_action[3] = 2.177423014918695
 #                sub_action[4] = -1.4691158467941916
-#                sub_action[5] = 2.5733145480767723
+#                sub_action[5] = 2.1733145480767723
 
 # after pull
 #                if update > 4:
@@ -833,14 +876,14 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #                    sub_action[2] = 2.498128485003836
 #                    sub_action[3] = 2.1563878359790927
 #                    sub_action[4] = -1.7477778260118484
-#                    sub_action[5] = 2.5733145480767723
+#                    sub_action[5] = 2.1733145480767723
 #                print("sub_action", sub_action)
 
             elif self.moveit == 1:
 #                sub_action[0] = sub_action[0] / 42
-#                sub_action[1] = sub_action[1] / 42
+                sub_action[1] = sub_action[1] / 42
 #                sub_action[2] = sub_action[2] / 1000
-#                sub_action[3] = sub_action[3] * 2
+                sub_action[3] = sub_action[3] * 2
 #                sub_action[4] = sub_action[4] / 1000
 #                sub_action[5] = sub_action[5] / 10
                 sub_action = sub_action + self.arr_init_pose2
@@ -848,20 +891,20 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
 # after rotate(x,y,z,roll,pitch,yaw)
                 sub_action[0] = -0.0885606971807
-                sub_action[1] = 0.367100554257
+#                sub_action[1] = 0.367100554257
                 sub_action[2] = 0.278060295058
-                sub_action[3] = 1.5746781585880325
+#                sub_action[3] = 1.5746781585880325
                 sub_action[4] = 0.01488937165698871
                 sub_action[5] = 1.5931206693388063
 
 # after pull
-                if update > 4:
-                    sub_action[0] = -0.119503224332
-                    sub_action[1] = 0.317118121264
-                    sub_action[2] = 0.276059107781
-                    sub_action[3] = 2.5706315470591077
-                    sub_action[4] = 0.015724591329912007
-                    sub_action[5] = 1.4710841122970895
+#                if update > 4:
+#                    sub_action[0] = -0.119503224332
+#                    sub_action[1] = 0.317118121264
+#                    sub_action[2] = 0.276059107781
+#                    sub_action[3] = 2.5706315470591077
+#                    sub_action[4] = 0.015724591329912007
+#                    sub_action[5] = 1.4710841122970895
                 print("sub_action", sub_action)
 
 
@@ -949,10 +992,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 print(x, "over the cartesian limits")
                 self.act_end = 1
 
-            self.min_static_taxel0 = 0
-            self.min_static_taxel1 = 0
-            self.max_static_taxel0 = 0
-            self.max_static_taxel1 = 0
             self.static_taxel = self.tactile_static.taxels
 
             for x in range(0, 28):
@@ -964,6 +1003,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                     self.max_static_taxel0 = (self.static_taxel[0].values[x] - self.static_taxel_ini[0].values[x]) * self.taxel_n
                 if self.max_static_taxel1 < (self.static_taxel[1].values[x] - self.static_taxel_ini[1].values[x]) * self.taxel_n:
                     self.max_static_taxel1 = (self.static_taxel[1].values[x] - self.static_taxel_ini[1].values[x]) * self.taxel_n
+            print("taxel[14]", self.static_taxel[0].values[14], self.static_taxel[1].values[14])
 #            print("self.min_static_taxel0, 1", self.min_static_taxel0, self.min_static_taxel1)
 
             if self.min_taxel0 > self.min_static_taxel0:
@@ -1065,32 +1105,32 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         catesian_rpy_z = 0
         compute_rewards = 0.0001
 
-        knob_c = 500         #1 rotation of knob(+)
-        knob_bonus_c = 10    #2 bonus of knob rotation(+)
-        panel_c = 500         #3 door panel open(+)
-        panel_b_c = 10      #4 door panel before open(-)
-        force_c = 10         #6 over force limit1(-)
-        force_c2 = 50        #  over force limit2(-)
-        taxel_c = 50         #7 release the knob(-)
-        act_0_n = 10         #8 action[0] (+)
-        act_1_n = 10          #  action[1] (+)
-        act_2_n = 10          #  action[2] (+)
-        act_3_n = 10          #  action[3] (+)
-        act_4_n = 10          #  action[4] (+)
-        act_5_n = 10          #  action[5] (+)
-        act_correct_c = 1    #9 act_correct (+)
-        catesian_xyz_c = 3      #10 cartesian (+)
-        catesian_rpy_c = 3
-        cartesian_c = 10             #   bonus (+)
+#        knob_c = 100         #1 rotation of knob(+)
+#        knob_bonus_c = 10    #2 bonus of knob rotation(+)
+#        panel_c = 100         #3 door panel open(+)
+#        panel_b_c = 10      #4 door panel before open(-)
+#        force_c = 10         #6 over force limit1(-)
+#        force_c2 = 50        #  over force limit2(-)
+#        taxel_c = 50         #7 release the knob(-)
+#        act_0_n = 10         #8 action[0] (+)
+#        act_1_n = 10          #  action[1] (+)
+#        act_2_n = 10          #  action[2] (+)
+#        act_3_n = 10          #  action[3] (+)
+#        act_4_n = 10          #  action[4] (+)
+#        act_5_n = 10          #  action[5] (+)
+#        act_correct_c = 1    #9 act_correct (+)
+#        catesian_xyz_c = 3      #10 cartesian (+)
+#        catesian_rpy_c = 3
+#        cartesian_c = 10             #   bonus (+)
 
 #        self.quat = self.rt_imu.orientation
 #        self.door_rpy = self.cvt_quat_to_euler(self.quat)
 #        self.door_rotation.x = self.door_rpy.x - self.door_rpy_ini.x
 #        self.door_rotation.y = self.door_rpy.y - self.door_rpy_ini.y
 #        self.door_rotation = self.door_rpy.z - self.door_rpy_ini.z
-        self.door_rpy = self.rt_imu.linear_acceleration.y / 9.8 * 1.57
+        self.door_rpy = self.rt_imu.linear_acceleration.z / 9.8 * 1.57
         self.door_rotation = self.door_rpy_ini - self.door_rpy
-        print("door_rotation, act, ini", self.door_rotation, self.door_rpy, self.door_rpy_ini)
+#        print("door_rotation, act, ini", self.door_rotation, self.door_rpy, self.door_rpy_ini)
         
         self.knob_rpy = self.microstrain_imu.linear_acceleration.y / 9.8 * 1.57
         self.knob_rotation = self.knob_rpy_ini - self.knob_rpy
@@ -1131,34 +1171,44 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if self.min_eef_rpy_z > self.eef_rpy.z - self.eef_rpy_ini.z:
             self.min_eef_rpy_z = self.eef_rpy.z - self.eef_rpy_ini.z
 
+
         #1 rotation of knob, bonus of knob rotation(+)
         #2 door panel open(+), 
-        if self.knob_rotation < 0.2:
-            self.knob_rotation_r = self.knob_rotation * knob_c
-        elif 0.2 < self.knob_rotation < 0.4:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c
-        elif 0.4 < self.knob_rotation < 0.6:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 2
-        elif 0.6 < self.knob_rotation < 0.9:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 3
-        elif 0.9 < self.knob_rotation < 1.0:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 4 
-            self.panel_rotation_r =  self.door_rotation * panel_c
-        elif 1.0 < self.knob_rotation:
-            self.knob_rotation_r = 1.0 * knob_c + knob_bonus_c * 5
-            if self.door_rotation < 0.3:
-                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c
-            elif 0.3 < self.door_rotation < 0.6:
-                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2
-            elif 0.6 < self.door_rotation < 0.9:
-                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3
-            elif 0.9 < self.door_rotation < 1.2:
-                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 4
-            elif 1.2 < self.door_rotation:
-                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5
+        knob_rotation_th = 0.75  # 3/4 = 0.56, previously 1.1
+        door_rotation_th = 0.9
+        if self.knob_rotation < knob_rotation_th / 4:
+            self.knob_rotation_r = self.knob_rotation * knob_c                     # 0.12 * 100 = 12 (0-12)
+        elif knob_rotation_th / 4 <= self.knob_rotation < knob_rotation_th * 2 / 4:
+            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c      # 0.24 * 100 + 10 = 34 (22-34)
+        elif knob_rotation_th * 2 / 4 <= self.knob_rotation < knob_rotation_th * 3 / 4:
+            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 2  # 0.36 * 100 + 10 * 2 = 56 (44-56)
+        elif knob_rotation_th * 3 / 4 <= self.knob_rotation < knob_rotation_th:
+            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 5  # 0.53 * 100 + 10 * 5 = 103 (86-103)
+            if self.door_rotation < door_rotation_th / 4:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.12 * 100 + 10 (0-22)
+            elif door_rotation_th / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.24 * 100 + 10 * 2 (32-44)
+            elif door_rotation_th * 2 / 4 <= self.door_rotation < door_rotation_th * 3 / 4:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.36 * 100 + 10 * 3 (54-66)
+            elif door_rotation_th * 3 / 4 <= self.door_rotation < door_rotation_th:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.48 * 100 + 10 * 5 (86-98)
+            elif door_rotation_th <= self.door_rotation:
+                self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10 # 0.89 * 100 + 10 * 10 (189- )
+        elif knob_rotation_th <= self.knob_rotation:
+            self.knob_rotation_r = knob_rotation_th * knob_c + knob_bonus_c * 5 # 0.53 * 100 + 10 * 5 = 103 (103- )
+            if self.door_rotation < door_rotation_th / 4:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.12 * 100 + 10 (0-22)
+            elif door_rotation_th / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.24 * 100 + 10 * 2 (32-44)
+            elif door_rotation_th * 2 / 4 <= self.door_rotation < door_rotation_th * 3 / 4:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.36 * 100 + 10 * 3 (54-66)
+            elif door_rotation_th * 3 / 4 <= self.door_rotation < door_rotation_th:
+                self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.48 * 100 + 10 * 5 (86-98)
+            elif door_rotation_th <= self.door_rotation:
+                self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10 # 0.89 * 100 + 10 * 10 (189- )
 
-        print("##1 knob_rotation_r", self.knob_rotation_r)
-        print("##2 panel_rotation_r", self.panel_rotation_r)
+        print("##1 knob_rotation_r", self.knob_rotation_r, self.knob_rotation)
+        print("##2 panel_rotation_r", self.panel_rotation_r, self.door_rotation)
 
         #3 over force limit1(-)
         if self.force_limit2 < self.delta_force_x or self.delta_force_x < -self.force_limit2:
@@ -1271,6 +1321,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.negative_r = self.force_limit_r + self.static_limit_r
         self.action_r = self.action_limit_r + self.act_correct_r + self.catesian_xyz_r + self.catesian_rpy_r + self.cartesian_bonus_r
         compute_rewards = self.knob_rotation_r + self.panel_rotation_r + self.negative_r + self.action_r
+        print("### action_r", self.action_r)
         print("### total_compute_rewards", compute_rewards)
 
         return compute_rewards

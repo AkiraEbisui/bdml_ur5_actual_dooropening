@@ -115,8 +115,8 @@ class UR5Interface:
 #        print self.robot.get_current_state()
 #        print ""
 
-        self.group.set_max_acceleration_scaling_factor(0.1)
-        self.group.set_max_velocity_scaling_factor(0.1)
+        self.group.set_max_acceleration_scaling_factor(0.3)
+        self.group.set_max_velocity_scaling_factor(0.3)
 #        print "============ Set a max acceleration value of 0.1"
 #        print "============ Set a max velocity value of 0.1"
 

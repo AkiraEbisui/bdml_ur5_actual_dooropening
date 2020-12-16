@@ -9,18 +9,19 @@ ML:
   value_lr: 1e-3
   max_std: 1.0
   clip_range: 0.2
+
   n_step: 16 # 16
+  act_step: 1 # 30
+  sub_step: 6 # 3
+  act_add: 1
+  maxlen_num: 1 # 10
+  save_step: 20
 
   gamma: 0.99
   lam: 0.98
   episode_size: 1
   batch_size: 16
   nupdates: 1000
-
-  act_step: 1 # 30
-  sub_step: 2 # 3
-  save_step: 20
-  maxlen_num: 10 # 10
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
@@ -38,8 +39,14 @@ max_static_limit:  0.4 #  0.1 when using only wrist_3
 
 # act
 act_params:
- dt_act: 1
- dt_reset: 1
+  dt_act: 0.5
+  dt_reset: 1.5
+  sub_a0: 75     # 20
+  sub_a1: 35     # 45
+  sub_a2: 35     # 30
+  sub_a3: 60     # 60
+  sub_a4: 70     # 10
+  sub_a5: 1      # 0.5
 
 # normarizing parameters for observations
 obs_params:
@@ -49,6 +56,25 @@ obs_params:
   force_n: 1 # 0.01
   torque_n: 1 # 0.1
   taxel_n: 0.0003 # 0.01
+
+reward_params:
+  knob_c: 10        #1 rotation of knob(+)
+  knob_bonus_c: 10   #2 bonus of knob rotation(+)
+  panel_c: 1000       #3 door panel open(+)
+  panel_b_c: 10      #4 door panel before open(-)
+  force_c: 10        #6 over force limit1(-)
+  force_c2: 50       #  over force limit2(-)
+  taxel_c: 50        #7 release the knob(-)
+  act_0_n: 10        #8 action[0] (+)
+  act_1_n: 10        #  action[1] (+)
+  act_2_n: 10        #  action[2] (+)
+  act_3_n: 10        #  action[3] (+)
+  act_4_n: 10        #  action[4] (+)
+  act_5_n: 10        #  action[5] (+)
+  act_correct_c: 1   #9 act_correct (+)
+  catesian_xyz_c: 3  #10 cartesian (+)
+  catesian_rpy_c: 3
+  cartesian_c: 10    #   bonus (+)
 
 observations: # Observations you want to use for the learning
   - shp_joint_ang # 6
@@ -153,6 +179,22 @@ after_pull_xyz:
   rpy_p: 0.015724591329912007
   rpy_y: 1.4710841122970895
 
+after_pull-z_pose:
+  shp: 1.4779845896929604
+  shl: -1.505218648317907
+  elb: 2.497158740699255
+  wr1: 2.1664922513189255
+  wr2: -1.4553428085419409
+  wr3: 2.570130641521743
+
+after_pull-z_xyz:
+  x: -0.0879276728811
+  y: 0.335368766515
+  z: 0.278149516185
+  rpy_r: 2.57206518387442
+  rpy_p: 0.016679954095331143
+  rpy_y: 1.593454242367967
+
 far_pose:
   shp: 1.4410264033536153
   shl: -1.6883855417730604
@@ -202,7 +244,9 @@ close_door_xyz:
   rpy_y: 1.5907502956467094
 
 init_grp_pose1: 0
-init_grp_pose2: 81  ## 77
+init_grp_pose2: 83  ## 77
+
+# roundknob1=83  sliped when 81(knob1 = new one)
 # roundknob1&neoprene=88
 # roundknob1&neoprene=77
 # default=120
@@ -236,12 +280,12 @@ joint_velocity_limits_array:
   wr3_min: -1.0
 
 cartesian_limits:  # default #On the surface plate
-  x_max: -0.08     # -0.08   #  0.2
-  x_min: -0.125     # -0.11   # -0.45
-  y_max: 0.375      #  0.425  #  0.7
-  y_min: 0.31      #  0.35   # -0.25
-  z_max: 0.28      #  0.31   #  2
-  z_min: 0.274      #  0.26   #  0.15
+  x_max: -0.07     # -0.08   #  0.2
+  x_min: -0.135     # -0.11   # -0.45
+  y_max: 0.385      #  0.425  #  0.7
+  y_min: 0.30      #  0.35   # -0.25
+  z_max: 0.29      #  0.31   #  2
+  z_min: 0.264      #  0.26   #  0.15
 
   rpy_x_max: 3
   rpy_x_min: 1.5
