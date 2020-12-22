@@ -10,12 +10,12 @@ ML:
   max_std: 1.0
   clip_range: 0.2
 
-  n_step: 16 # 16
+  n_step: 32 # 16
   act_step: 1 # 30
   sub_step: 6 # 3
   act_add: 1
   maxlen_num: 1 # 10
-  save_step: 20
+  save_step: 50
 
   gamma: 0.99
   lam: 0.98
@@ -34,19 +34,19 @@ force_limit1: 20 # 15 when using only wrist_3
 torque_limit1: 2 #  2 when using only wrist_3
 force_limit2: 30 # 300 ~ over 1000 in position control
 torque_limit2: 4 # 30 ~  in position control
-min_static_limit: -0.4 # -0.1 when using only wrist_3
-max_static_limit:  0.4 #  0.1 when using only wrist_3
+min_static_limit: -0.5 # -0.1 when using only wrist_3
+max_static_limit:  0.5 #  0.1 when using only wrist_3
 
 # act
 act_params:
   dt_act: 0.5
-  dt_reset: 1.5
-  sub_a0: 75     # 20
-  sub_a1: 35     # 45
-  sub_a2: 35     # 30
-  sub_a3: 60     # 60
-  sub_a4: 70     # 10
-  sub_a5: 1      # 0.5
+  dt_reset: 1.3
+  sub_a0: 40     # 20
+  sub_a1: 90     # 45
+  sub_a2: 60     # 30
+  sub_a3: 120     # 60
+  sub_a4: 20     # 10
+  sub_a5: 2.7      # 0.5
 
 # normarizing parameters for observations
 obs_params:
@@ -58,7 +58,7 @@ obs_params:
   taxel_n: 0.0003 # 0.01
 
 reward_params:
-  knob_c: 10        #1 rotation of knob(+)
+  knob_c: 30        #1 rotation of knob(+)
   knob_bonus_c: 10   #2 bonus of knob rotation(+)
   panel_c: 1000       #3 door panel open(+)
   panel_b_c: 10      #4 door panel before open(-)
@@ -72,8 +72,8 @@ reward_params:
   act_4_n: 10        #  action[4] (+)
   act_5_n: 10        #  action[5] (+)
   act_correct_c: 1   #9 act_correct (+)
-  catesian_xyz_c: 3  #10 cartesian (+)
-  catesian_rpy_c: 3
+  catesian_xyz_c: 0  #10 cartesian (+)
+  catesian_rpy_c: 0
   cartesian_c: 10    #   bonus (+)
 
 observations: # Observations you want to use for the learning
@@ -244,8 +244,9 @@ close_door_xyz:
   rpy_y: 1.5907502956467094
 
 init_grp_pose1: 0
-init_grp_pose2: 83  ## 77
+init_grp_pose2: 80  ## 77
 
+# roundknob1&neoprene50A/fingertip 50A 77 or 78
 # roundknob1=83  sliped when 81(knob1 = new one)
 # roundknob1&neoprene=88
 # roundknob1&neoprene=77

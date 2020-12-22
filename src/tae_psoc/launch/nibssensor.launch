@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="ms_port" default="/dev/ttyACM3" />
+<!-- imu -->
+  <node pkg="tae_psoc" type="psocPubSub_ForDooropening" name="Nibs_node" output="screen">
+    <param name="time_offset" value="-0.040" />
+    <param name="ms_port"  type="string" value="$(arg ms_port)" />
+
+  </node>
+
+</launch>

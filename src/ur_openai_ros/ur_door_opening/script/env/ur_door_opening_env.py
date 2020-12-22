@@ -1003,7 +1003,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                     self.max_static_taxel0 = (self.static_taxel[0].values[x] - self.static_taxel_ini[0].values[x]) * self.taxel_n
                 if self.max_static_taxel1 < (self.static_taxel[1].values[x] - self.static_taxel_ini[1].values[x]) * self.taxel_n:
                     self.max_static_taxel1 = (self.static_taxel[1].values[x] - self.static_taxel_ini[1].values[x]) * self.taxel_n
-            print("taxel[14]", self.static_taxel[0].values[14], self.static_taxel[1].values[14])
+#            print("taxel[14]", self.static_taxel[0].values[14], self.static_taxel[1].values[14])
 #            print("self.min_static_taxel0, 1", self.min_static_taxel0, self.min_static_taxel1)
 
             if self.min_taxel0 > self.min_static_taxel0:
@@ -1184,7 +1184,9 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
             self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 2  # 0.36 * 100 + 10 * 2 = 56 (44-56)
         elif knob_rotation_th * 3 / 4 <= self.knob_rotation < knob_rotation_th:
             self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 5  # 0.53 * 100 + 10 * 5 = 103 (86-103)
-            if self.door_rotation < door_rotation_th / 4:
+            if self.door_rotation < 0:
+                self.panel_rotation_r =  self.door_rotation            
+            elif 0 <= self.door_rotation < door_rotation_th / 4:
                 self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.12 * 100 + 10 (0-22)
             elif door_rotation_th / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
                 self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.24 * 100 + 10 * 2 (32-44)
@@ -1196,7 +1198,9 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10 # 0.89 * 100 + 10 * 10 (189- )
         elif knob_rotation_th <= self.knob_rotation:
             self.knob_rotation_r = knob_rotation_th * knob_c + knob_bonus_c * 5 # 0.53 * 100 + 10 * 5 = 103 (103- )
-            if self.door_rotation < door_rotation_th / 4:
+            if self.door_rotation < 0:
+                self.panel_rotation_r =  self.door_rotation            
+            elif 0 <= self.door_rotation < door_rotation_th / 4:
                 self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.12 * 100 + 10 (0-22)
             elif door_rotation_th / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
                 self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.24 * 100 + 10 * 2 (32-44)
