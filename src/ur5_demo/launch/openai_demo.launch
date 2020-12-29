@@ -33,13 +33,17 @@
   <arg name="ms_port" value="$(arg ms_port)" />
   </include>
 
-  <!-- Load the robotiq sensor -->
+  <!-- Load the robotiq sensor
   <include file="$(find tactilesensors4)/launch/tactilesensors4.launch">
-  </include>
+  </include> -->
 
   <!-- Load the FT300 force-torque sensor -->
   <node pkg="robotiq_ft_sensor" type="rq_sensor" name="rq_sensor" required="true" output="screen">
   </node>
+
+    <!-- Load the nibs sensor -->
+  <include file="$(find tae_psoc)/launch/nibssensor.launch">
+  </include>
 
   <!-- Load moveit planner  -->
   <include file="$(find ur5_moveit_config)/launch/ur5_moveit_planning_execution.launch">

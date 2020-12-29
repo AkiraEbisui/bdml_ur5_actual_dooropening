@@ -30,6 +30,8 @@ from std_msgs.msg import String
 from std_srvs.srv import SetBool, SetBoolResponse, SetBoolRequest
 from std_srvs.srv import Empty
 from tactilesensors4.msg import StaticData, Dynamic
+from tae_psoc.msg import Sensor_Fast
+from tae_psoc.msg import Sensor_Indiv
 
 # Gym
 import gym
@@ -100,11 +102,14 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         rospy.logdebug("Starting URSimDoorOpening Class object...")
 
         # Subscribe joint state and target pose
+        # rospy.Subscriber("/topic", msg, callback)
         rospy.Subscriber("/robotiq_ft_wrench", WrenchStamped, self.wrench_stamped_callback) # FT300
 #        rospy.Subscriber("/wrench", WrenchStamped, self.wrench_stamped_callback) # default UR5 sensor
         rospy.Subscriber("/joint_states", JointState, self.joints_state_callback)
         rospy.Subscriber("/TactileSensor4/StaticData", StaticData, self.tactile_static_callback)
         rospy.Subscriber("/TactileSensor4/Dynamic", Dynamic, self.tactile_dynamic_callback)
+        rospy.Subscriber("/Sensor_Fast", Sensor_Fast, self.Sensor_Fast_callback)
+        rospy.Subscriber("/Sensor_Indiv", Sensor_Indiv, self.Sensor_Indiv_callback)
         rospy.Subscriber("/imu/data", Imu, self.rt_imu_callback)
         rospy.Subscriber("/imu/data_3dmg", Imu, self.microstrain_imu_callback)
 
@@ -269,6 +274,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.force_n = rospy.get_param("/obs_params/force_n")
         self.torque_n = rospy.get_param("/obs_params/torque_n")
         self.taxel_n = rospy.get_param("/obs_params/taxel_n")
+        self.nibs_indiv_n = rospy.get_param("/obs_params/nibs_indiv_n")
+        self.nibs_fast_n = rospy.get_param("/obs_params/nibs_fast_n")
 
         # We init the observations
         self.quat = Quaternion()
@@ -286,6 +293,12 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.tactile_static_ini = []
         self.tactile_dynamic = Dynamic()
         self.tactile_dynamic_ini = []
+
+        self.nibssensor_fast = Sensor_Fast()
+        self.nibssensor_fast_ini = []
+        self.nibssensor_indiv = Sensor_Indiv()
+        self.nibssensor_indiv_ini = []
+
         self.rt_imu = Imu()
         self.microstrain_imu = Imu()
 #        self.end_effector = Point() 
@@ -495,6 +508,12 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
     def tactile_dynamic_callback(self,msg):
         self.tactile_dynamic = msg
 
+    def Sensor_Fast_callback(self,msg):
+        self.nibssensor_fast = msg
+
+    def Sensor_Indiv_callback(self,msg):
+        self.nibssensor_indiv = msg
+
     def rt_imu_callback(self,msg):
         self.rt_imu = msg
 
@@ -515,6 +534,14 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.torque = self.wrench_stamped.wrench.torque
         self.static_taxel = self.tactile_static.taxels
 #        dynamic_taxel= tactile_dynamic
+        self.sns_1_Indiv_ini = self.nibssensor_indiv_ini.sns_1_Indiv
+        self.sns_2_Indiv_ini = self.nibssensor_indiv_ini.sns_2_Indiv
+        self.sns_1_Fast_ini = self.nibssensor_fast_ini.sns_1_Fast
+        self.sns_2_Fast_ini = self.nibssensor_fast_ini.sns_2_Fast
+        self.sns_1_Indiv = self.nibssensor_indiv.sns_1_Indiv
+        self.sns_2_Indiv = self.nibssensor_indiv.sns_2_Indiv
+        self.sns_1_Fast = self.nibssensor_fast.sns_1_Fast
+        self.sns_2_Fast = self.nibssensor_fast.sns_2_Fast
 
 #        print("[force]", self.force.x, self.force.y, self.force.z)
 #        print("[torque]", self.torque.x, self.torque.y, self.torque.z)
@@ -539,10 +566,15 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.eef_rpy = self.get_orientation(q)
 
         delta_image_r, delta_image_l = self.get_image()
+        delta_nibs_image_r, delta_nibs_image_l = self.get_nibs_image()
         self.cnn_image_r = agent.update_cnn(delta_image_r)
         self.cnn_image_l = agent.update_cnn(delta_image_l)
+        self.cnn_nibs_image_r = agent.update_nibs_cnn(delta_nibs_image_r)
+        self.cnn_nibs_image_l = agent.update_nibs_cnn(delta_nibs_image_l)
         self.cnn_image_r_list = self.cnn_image_r.tolist()
         self.cnn_image_l_list = self.cnn_image_l.tolist()
+        self.cnn_nibs_image_r_list = self.cnn_nibs_image_r.tolist()
+        self.cnn_nibs_image_l_list = self.cnn_nibs_image_l.tolist()
 #        print("r_list", self.cnn_image_r_list)
 #        print("l_list", self.cnn_image_l_list)
 
@@ -610,12 +642,37 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #            elif obs_name == "dynamic_taxel":
 #                    observation.append(dynamic_taxel[0].values) * self.taxel_n
 #                    observation.append(dynamic_taxel[1].values) * self.taxel_n
+            elif obs_name == "nibs_cnn":
+                for x in range(0, 10):
+                    observation.append(self.cnn_nibs_image_r_list[0][x])
+                for x in range(0, 10):
+                    observation.append(self.cnn_nibs_image_l_list[0][x])
+            elif obs_name == "nibs_indiv":
+                for x in range(0, 36):
+                    observation.append((self.sns_1_Indiv[x] - self.sns_1_Indiv_ini[x]) * self.nibs_indiv_n)
+                for x in range(0, 36):
+                    observation.append((self.sns_2_Indiv[x] - self.sns_1_Indiv_ini[x]) * self.nibs_indiv_n)
+            elif obs_name == "nibs_fast":
+                for x in range(0, 2):
+                    observation.append((self.sns_1_Fast[x] - self.sns_1_Fast_ini[x]) * self.nibs_fast_n)
+                for x in range(0, 2):
+                    observation.append((self.sns_2_Fast[x] - self.sns_2_Fast_ini[x]) * self.nibs_fast_n)
             else:
                 raise NameError('Observation Asked does not exist=='+str(obs_name))
-
 #        print("observation", list(map(round, observation, [3]*len(observation))))
 
         return observation
+
+    def get_nibs_image(self):
+        delta_nibs_image_r = []
+        delta_nibs_image_l = []
+        for x in range(0, 36):
+            delta_nibs_image_r.append((self.sns_1_Indiv[x] - self.sns_1_Indiv_ini[x]) * self.nibs_indiv_n)
+        for x in range(0, 36):
+            delta_nibs_image_l.append((self.sns_2_Indiv[x] - self.sns_2_Indiv_ini[x]) * self.nibs_indiv_n)
+        print(delta_nibs_image_r)
+        print(delta_nibs_image_l)
+        return delta_nibs_image_r, delta_nibs_image_l
 
     def get_image(self):
         delta_image_r = []
@@ -777,6 +834,11 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # 5th: Get the State Discrete Stringuified version of the observations
         self.static_taxel = self.tactile_static.taxels
         self.static_taxel_ini = copy.deepcopy(self.static_taxel)
+        self.nibssensor_indiv_ini = copy.deepcopy(self.nibssensor_indiv)
+        self.nibssensor_fast_ini = copy.deepcopy(self.nibssensor_fast)
+#        print("self.nibssensor_indiv_ini", self.nibssensor_indiv_ini)
+#        print("self.nibssensor_indiv_ini.sns_1_Indiv", self.nibssensor_indiv_ini.sns_1_Indiv)
+#        print("self.nibssensor_fast_ini.sns_1_Fast", self.nibssensor_fast_ini.sns_1_Fast)
         self.eef_x_ini, self.eef_y_ini, self.eef_z_ini = self.get_xyz(self.init_joint_pose2)
         self.eef_rpy_ini = self.get_orientation(self.init_joint_pose2)
 

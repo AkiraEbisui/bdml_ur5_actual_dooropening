@@ -35,7 +35,8 @@ IDLE_CMD = 3
 
 
 currState = IDLE
-CMD_in = NO_CMD
+#CMD_in = NO_CMD
+CMD_in = 2
 
 gripperPosInput = -1
 
@@ -56,15 +57,15 @@ def callback_gripperCMD(data):
     gripperPosInput = data.position
     print(gripperPosInput)
     
-
 def mainLoop(savingFileName):
+#def mainLoop(self):
     global currState
     global CMD_in   
     global gripperPosInput
     global UR5_Y_pos
 
 
-    rospy.init_node('psocPubSub_WilsonHand')
+    rospy.init_node('psocPubSub_ForDooropening')
 
     #Each Sensor Reading is Published to topic 'SensorReading'
         #pub = rospy.Publisher('SensorPacket', SensorPacket, queue_size=1)
@@ -86,7 +87,8 @@ def mainLoop(savingFileName):
     # rospy.spin();
 
     ResultSavingDirectory = '/home/ae_ws/bdml_ur5_actual_dooropening/src/tae_psoc/data'
-    SavingFileName = savingFileName  #'test_box'
+    SavingFileName = 'test_box'
+#    SavingFileName = SavingFileName  #'test_box'
 
     SensorExist = 1
     plotShow = 1
@@ -171,7 +173,7 @@ def mainLoop(savingFileName):
             
         #    output_file = ResultSavingDirectory + '\\'+ 'result_' +currDateString + SavingFileName + '.html'
 
-            ts = psoc.TactileSensor(port="/dev/ttyACM4")
+            ts = psoc.TactileSensor(port="/dev/ttyACM1")
             ts.ser.flushInput()
             
             # ts.sendChar("i")
@@ -400,6 +402,7 @@ if __name__ == '__main__':
     try:
         print("Started!")
         mainLoop(sys.argv[1])
+#        mainLoop()
     except rospy.ROSInterruptException: pass
 
 

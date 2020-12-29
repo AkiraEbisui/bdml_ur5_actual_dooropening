@@ -171,7 +171,7 @@ def mainLoop(savingFileName):
             
         #    output_file = ResultSavingDirectory + '\\'+ 'result_' +currDateString + SavingFileName + '.html'
 
-            ts = psoc.TactileSensor(port="/dev/ttyACM4")
+            ts = psoc.TactileSensor(port="/dev/ttyACM1")
             ts.ser.flushInput()
             
             # ts.sendChar("i")
