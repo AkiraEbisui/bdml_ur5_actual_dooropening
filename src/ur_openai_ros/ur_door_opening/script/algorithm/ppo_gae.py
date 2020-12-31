@@ -50,7 +50,7 @@ class PPOGAEAgent(object):
         self.counter = 0
 
         # load the parameters 
-        #self.saver.restore(self.sess, './results/ppo_with_gae_model-50')
+        self.saver.restore(self.sess, './results/ppo_with_gae_model-800')
 
     def _build_graph(self):
         self.g = tf.Graph()
@@ -66,7 +66,7 @@ class PPOGAEAgent(object):
             self.init = tf.compat.v1.global_variables_initializer()
             self.variables = tf.compat.v1.global_variables()  
             # Create a saver object which will save all the variables
-            self.saver = tf.compat.v1.train.Saver(max_to_keep=10)
+            self.saver = tf.compat.v1.train.Saver(max_to_keep = None)
             
     def _placeholders(self):
         # observations, actions and advantages:
@@ -251,9 +251,9 @@ class PPOGAEAgent(object):
             self.output_o = tf.nn.softmax(tf.matmul(fully_connected_o, output_w) + output_b) # output_o = self.y
 
     def _nibs_cnn_layer(self):
-        img_hight = 6 # 3
-        img_width = 6 # 3
-        color_channel = 1 # 4
+        img_hight = 6 # 3 or 6
+        img_width = 6 # 3 or 6
+        color_channel = 1 # 4 or 1
         img = tf.reshape(self.nibs_x, [-1, img_hight, img_width, color_channel]) # batch_size(-1 means auto), hight, width, color channel
 
         # convolution layer1
@@ -282,7 +282,7 @@ class PPOGAEAgent(object):
 
         # flatten layer
         with tf.name_scope('flatten'):
-            flatten_o = tf.reshape(pool2_o, [-1, 6 * 6 * 64]) # 6 * 6 * 64 = 2304 
+            flatten_o = tf.reshape(pool2_o, [-1, 6 * 6 * 64]) # 1 * 3 * 64 = 192 or 6 * 6 * 64 = 2304 
 
         # fully connected layer
         with tf.name_scope('fully_connected'):
@@ -343,26 +343,8 @@ class PPOGAEAgent(object):
         # save the parameters
 	self.counter = self.counter + 1
 
-        if self.counter == 1 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 1 * save_step)
-        elif self.counter == 2 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 2 * save_step)
-        elif self.counter == 3 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 3 * save_step)
-        elif self.counter == 4 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 4 * save_step)
-        elif self.counter == 5 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 5 * save_step)
-        elif self.counter == 6 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 6 * save_step)
-        elif self.counter == 7 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 7 * save_step)
-        elif self.counter == 8 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 8 * save_step)
-        elif self.counter == 9 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 9 * save_step)
-        elif self.counter == 10 * save_step:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= 10 * save_step)
+        if (self.counter%save_step) ==0:
+            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= self.counter)
 
         return policy_loss, value_loss, kl, entropy
     

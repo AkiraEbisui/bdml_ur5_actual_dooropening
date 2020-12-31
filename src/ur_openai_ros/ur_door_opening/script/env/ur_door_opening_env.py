@@ -532,16 +532,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         joint_states = self.joints_state
         self.force = self.wrench_stamped.wrench.force
         self.torque = self.wrench_stamped.wrench.torque
-        self.static_taxel = self.tactile_static.taxels
 #        dynamic_taxel= tactile_dynamic
-        self.sns_1_Indiv_ini = self.nibssensor_indiv_ini.sns_1_Indiv
-        self.sns_2_Indiv_ini = self.nibssensor_indiv_ini.sns_2_Indiv
-        self.sns_1_Fast_ini = self.nibssensor_fast_ini.sns_1_Fast
-        self.sns_2_Fast_ini = self.nibssensor_fast_ini.sns_2_Fast
-        self.sns_1_Indiv = self.nibssensor_indiv.sns_1_Indiv
-        self.sns_2_Indiv = self.nibssensor_indiv.sns_2_Indiv
-        self.sns_1_Fast = self.nibssensor_fast.sns_1_Fast
-        self.sns_2_Fast = self.nibssensor_fast.sns_2_Fast
+
 
 #        print("[force]", self.force.x, self.force.y, self.force.z)
 #        print("[torque]", self.torque.x, self.torque.y, self.torque.z)
@@ -565,18 +557,26 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.eef_x, self.eef_y, self.eef_z = self.get_xyz(q)
         self.eef_rpy = self.get_orientation(q)
 
+        self.static_taxel = self.tactile_static.taxels
         delta_image_r, delta_image_l = self.get_image()
-        delta_nibs_image_r, delta_nibs_image_l = self.get_nibs_image()
         self.cnn_image_r = agent.update_cnn(delta_image_r)
         self.cnn_image_l = agent.update_cnn(delta_image_l)
-        self.cnn_nibs_image_r = agent.update_nibs_cnn(delta_nibs_image_r)
-        self.cnn_nibs_image_l = agent.update_nibs_cnn(delta_nibs_image_l)
         self.cnn_image_r_list = self.cnn_image_r.tolist()
         self.cnn_image_l_list = self.cnn_image_l.tolist()
+
+        self.sns_1_Indiv_ini = self.nibssensor_indiv_ini.sns_1_Indiv
+        self.sns_2_Indiv_ini = self.nibssensor_indiv_ini.sns_2_Indiv
+        self.sns_1_Fast_ini = self.nibssensor_fast_ini.sns_1_Fast
+        self.sns_2_Fast_ini = self.nibssensor_fast_ini.sns_2_Fast
+        self.sns_1_Indiv = self.nibssensor_indiv.sns_1_Indiv
+        self.sns_2_Indiv = self.nibssensor_indiv.sns_2_Indiv
+        self.sns_1_Fast = self.nibssensor_fast.sns_1_Fast
+        self.sns_2_Fast = self.nibssensor_fast.sns_2_Fast
+        delta_nibs_image_r, delta_nibs_image_l = self.get_nibs_image()
+        self.cnn_nibs_image_r = agent.update_nibs_cnn(delta_nibs_image_r)
+        self.cnn_nibs_image_l = agent.update_nibs_cnn(delta_nibs_image_l)
         self.cnn_nibs_image_r_list = self.cnn_nibs_image_r.tolist()
         self.cnn_nibs_image_l_list = self.cnn_nibs_image_l.tolist()
-#        print("r_list", self.cnn_image_r_list)
-#        print("l_list", self.cnn_image_l_list)
 
         observation = []
 #        rospy.logdebug("List of Observations==>"+str(self.observations))
