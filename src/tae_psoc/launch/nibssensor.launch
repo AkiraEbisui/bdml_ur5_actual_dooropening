@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <node pkg="tae_psoc" type="psocPubSub_ForDooropening.py" name="nibssensor" arg="test" output="screen">
+  <node pkg="tae_psoc" type="psocPubSub_ForDooropening.py" name="nibssensor" output="screen">
   </node>
 </launch>

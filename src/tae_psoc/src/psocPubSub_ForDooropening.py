@@ -96,8 +96,8 @@ def mainLoop(savingFileName):
 
     ##################################################
     #%%
-    SensorNum = 2
-    SensorAddress = np.array([8, 10])
+    SensorNum = 1 # 2
+    SensorAddress = np.array([8]) # A:8, B:9, C:10
 
     MODE_ONE_PAD = 0 
     MODE_FOUR_PAD = 1
@@ -173,7 +173,7 @@ def mainLoop(savingFileName):
             
         #    output_file = ResultSavingDirectory + '\\'+ 'result_' +currDateString + SavingFileName + '.html'
 
-            ts = psoc.TactileSensor(port="/dev/ttyACM1")
+            ts = psoc.TactileSensor(port="/dev/ttyACM3")
             ts.ser.flushInput()
             
             # ts.sendChar("i")
