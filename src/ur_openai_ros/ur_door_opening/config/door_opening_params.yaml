@@ -1,21 +1,22 @@
 # Algortihm Parameters
 ML:
   seed: 0
-  obs_dim: 48 # 44 or 48 or 100
+  obs_dim: 44 # 44 or 48 or 100
   n_act: 6
   epochs: 10
   hdim: 64
-  policy_lr: 1e-3
-  value_lr: 1e-3
+  policy_lr: 5e-4
+  value_lr: 5e-4
   max_std: 1.0
   clip_range: 0.2
 
   n_step: 32 # 16
   act_step: 1 # 30
-  sub_step: 6 # 3
+  sub_step1: 1 # 3
+  sub_step2: 5 # 3
   act_add: 1
   maxlen_num: 1 # 10
-  save_step: 10
+  save_step: 20
 
   gamma: 0.99
   lam: 0.98
@@ -33,7 +34,7 @@ moveit: 0  # on:1 or off:0
 force_limit1: 20 # 15 when using only wrist_3
 torque_limit1: 2 #  2 when using only wrist_3
 force_limit2: 35 # 300 ~ over 1000 in position control
-torque_limit2: 4 # 30 ~  in position control
+torque_limit2: 4.5 # 30 ~  in position control
 min_static_limit: -0.5 # -0.1 when using only wrist_3
 max_static_limit:  0.5 #  0.1 when using only wrist_3
 
@@ -41,12 +42,20 @@ max_static_limit:  0.5 #  0.1 when using only wrist_3
 act_params:
   dt_act: 0.5
   dt_reset: 1.3
-  sub_a0: 60     # 20
-  sub_a1: 135     # 45
-  sub_a2: 90     # 30
-  sub_a3: 180     # 60
-  sub_a4: 30     # 10
-  sub_a5: 1.5      # 0.5
+  change_sub: 0.6
+  sub_a0: 500     # 20
+  sub_a1: 1000     # 45
+  sub_a2: 500     # 30
+  sub_a3: 1500     # 60
+  sub_a4: 300     # 10
+  sub_a5: 2      # 0.5
+
+  sub2_a0: 40     # 20
+  sub2_a1: 90     # 45
+  sub2_a2: 60     # 30
+  sub2_a3: 120     # 60
+  sub2_a4: 20     # 10
+  sub2_a5: 40      # 0.5
 
 # normarizing parameters for observations
 obs_params:
@@ -64,8 +73,8 @@ reward_params:
   knob_bonus_c: 10   #2 bonus of knob rotation(+)
   panel_c: 1000       #3 door panel open(+)
   panel_b_c: 10      #4 door panel before open(-)
-  force_c: 5        #6 over force limit1(-)
-  force_c2: 25       #  over force limit2(-)
+  force_c: 10        #6 over force limit1(-)
+  force_c2: 50       #  over force limit2(-)
   taxel_c: 50        #7 release the knob(-)
   act_0_n: 10        #8 action[0] (+)
   act_1_n: 10        #  action[1] (+)
@@ -103,14 +112,14 @@ observations: # Observations you want to use for the learning
   - torque_x # 3 (24)
   - torque_y
   - torque_z
-#  - image_cnn # 20 (1-44)
+  - image_cnn # 20 (1-44)
 #  - static_taxel # 56
 #  - dynamic_taxel
 #  - nibs_cnn # 20 (2-44)
 #  - nibs_indiv # 72 (3-96)
 #  - nibs_fast # 4 (2-48), (3-100)
-  - nibs_robotiq_cnn # 20 (44)
-  - nibs_robotiq_fast # 4 (48)
+#  - nibs_robotiq_cnn # 20 (44)
+#  - nibs_robotiq_fast # 4 (48)
 
 joint_names: ['shoulder_link', 'upper_arm_link', 'forearm_link', 'wrist_1_link', 'wrist_2_link', 'wrist_3_link']
 
@@ -144,8 +153,8 @@ init_joint_pose2:
   elb: 2.413675198293162
   wr1: 2.177423014918695
   wr2: -1.4691158467941916
-  wr3: 1.5733145480767723
-#  wr3: 0.8733145480767723
+#  wr3: 1.5733145480767723
+  wr3: 0.9733145480767723
 
 init_pose2:
   x: -0.0885606971807

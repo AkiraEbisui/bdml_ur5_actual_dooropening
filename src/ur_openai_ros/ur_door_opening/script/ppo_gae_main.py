@@ -349,6 +349,7 @@ def main():
     ax9.plot(x_data_f, y_data_min_taxel1, 'b-', linestyle="dashed")
     ax9.set_xlabel("episodes")
     ax9.set_ylabel("min&max_taxel0&1")
+    ax9.set_ylim(-0.7, 0.7)
     ax9.grid(axis='both')
     ax9.legend(loc=2)
     ax10 = fig.add_subplot(4, 3, 10)

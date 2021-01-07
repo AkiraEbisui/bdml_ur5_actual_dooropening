@@ -50,7 +50,7 @@ class PPOGAEAgent(object):
         self.counter = 0
 
         # load the parameters 
-        # self.saver.restore(self.sess, './results/ppo_with_gae_model-1400')
+        self.saver.restore(self.sess, './results/ppo_with_gae_model-1400')
 
     def _build_graph(self):
         self.g = tf.Graph()
@@ -62,7 +62,7 @@ class PPOGAEAgent(object):
             self._loss_train_op()
             self._kl_entropy()
             self._cnn_layer()
-            self._nibs_cnn_layer()
+#            self._nibs_cnn_layer()
             self.init = tf.compat.v1.global_variables_initializer()
             self.variables = tf.compat.v1.global_variables()  
             # Create a saver object which will save all the variables
