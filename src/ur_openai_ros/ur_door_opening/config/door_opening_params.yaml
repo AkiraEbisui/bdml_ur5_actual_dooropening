@@ -5,18 +5,18 @@ ML:
   n_act: 6
   epochs: 10
   hdim: 64
-  policy_lr: 5e-4
-  value_lr: 5e-4
+  policy_lr: 1e-4
+  value_lr: 1e-4
   max_std: 1.0
   clip_range: 0.2
 
   n_step: 32 # 16
   act_step: 1 # 30
   sub_step1: 1 # 3
-  sub_step2: 5 # 3
+  sub_step2: 3 # 3
   act_add: 1
   maxlen_num: 1 # 10
-  save_step: 20
+  save_step: 10
 
   gamma: 0.99
   lam: 0.98
@@ -33,8 +33,8 @@ moveit: 0  # on:1 or off:0
 # Limit
 force_limit1: 20 # 15 when using only wrist_3
 torque_limit1: 2 #  2 when using only wrist_3
-force_limit2: 35 # 300 ~ over 1000 in position control
-torque_limit2: 4.5 # 30 ~  in position control
+force_limit2: 30 # 300 ~ over 1000 in position control
+torque_limit2: 3 # 30 ~  in position control
 min_static_limit: -0.5 # -0.1 when using only wrist_3
 max_static_limit:  0.5 #  0.1 when using only wrist_3
 
@@ -42,7 +42,7 @@ max_static_limit:  0.5 #  0.1 when using only wrist_3
 act_params:
   dt_act: 0.5
   dt_reset: 1.3
-  change_sub: 0.6
+  change_sub: 0.65
   sub_a0: 500     # 20
   sub_a1: 1000     # 45
   sub_a2: 500     # 30
@@ -71,7 +71,7 @@ obs_params:
 reward_params:
   knob_c: 30        #1 rotation of knob(+)
   knob_bonus_c: 10   #2 bonus of knob rotation(+)
-  panel_c: 1000       #3 door panel open(+)
+  panel_c: 1300       #3 door panel open(+)
   panel_b_c: 10      #4 door panel before open(-)
   force_c: 10        #6 over force limit1(-)
   force_c2: 50       #  over force limit2(-)
@@ -86,6 +86,8 @@ reward_params:
   catesian_xyz_c: 0  #10 cartesian (+)
   catesian_rpy_c: 0
   cartesian_c: 10    #   bonus (+)
+  knob_rotation_th: 0.7
+  door_rotation_th: 0.9
 
 observations: # Observations you want to use for the learning
   - shp_joint_ang # 6
@@ -153,8 +155,8 @@ init_joint_pose2:
   elb: 2.413675198293162
   wr1: 2.177423014918695
   wr2: -1.4691158467941916
-#  wr3: 1.5733145480767723
-  wr3: 0.9733145480767723
+  wr3: 1.5733145480767723
+#  wr3: 0.9733145480767723
 
 init_pose2:
   x: -0.0885606971807

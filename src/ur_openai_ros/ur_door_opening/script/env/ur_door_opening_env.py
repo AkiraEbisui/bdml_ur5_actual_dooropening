@@ -96,6 +96,8 @@ act_correct_c = rospy.get_param("/reward_params/act_correct_c")
 catesian_xyz_c = rospy.get_param("/reward_params/catesian_xyz_c")
 catesian_rpy_c = rospy.get_param("/reward_params/catesian_rpy_c")
 cartesian_c = rospy.get_param("/reward_params/cartesian_c")
+knob_rotation_th = rospy.get_param("/reward_params/knob_rotation_th")
+door_rotation_th = rospy.get_param("/reward_params/door_rotation_th")
 
 rospy.loginfo("register...")
 #register the training environment in the gym as an available one
@@ -412,7 +414,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         elif self.z_min > self.ee_xyz[2] or self.ee_xyz[2] > self.z_max:
             print("over the z_cartesian limits", self.z_min, "<", self.ee_xyz[2], "<", self.z_max)
             return False
-        elif sub_action[5] > self.wr3_init_value2 + 0.9 or sub_action[5] < self.wr3_init_value2:
+        elif sub_action[5] > self.wr3_after_pull - 0.1 or sub_action[5] < self.wr3_init_value2:
             print("max_wrist3 over the limit", sub_action[5])
             return False
 #        elif self.rpy_x_min > self.ee_xyz[3] or self.ee_xyz[3] > self.rpy_x_max:
@@ -426,7 +428,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #            return False
         else:
             return True
-
 
     def get_xyz(self, q):
         """Get x,y,z coordinates 
@@ -1148,6 +1149,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 elif self.max_static_taxel0 > self.max_static_limit or self.max_static_taxel1 > self.max_static_limit:
                     print(x, "slipped and break the for loop(max over)", self.max_static_taxel0, self.max_static_taxel1)
                     self.act_end = 1
+
                 else:
                     self.act_correct_n += 1
                     print(x, "act correctly", self.act_correct_n)
@@ -1191,8 +1193,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #                self.act_end = 1
 
             if self.act_end == 1:
-                self._act(self.previous_action)
-                print("act previous_action", self.previous_action)
+#                self._act(self.previous_action)
+#                print("act previous_action", self.previous_action)
                 break
     
         # We now process the latest data saved in the class state to calculate
@@ -1229,6 +1231,10 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # finally we get an evaluation based on what happened in the sim
         reward = self.compute_dist_rewards(action, update)
         done = self.check_done(update)
+
+        if self.act_end == 1:
+            self._act(self.previous_action)
+            print("act previous_action", self.previous_action)
 
         return observation, reward, done, {}
 
@@ -1308,31 +1314,29 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         #1 rotation of knob, bonus of knob rotation(+)
         #2 door panel open(+), 
-        knob_rotation_th = 0.6  # 3/4 = 0.56, previously 1.1
-        door_rotation_th = 0.9
         if self.knob_rotation < knob_rotation_th / 4:
-            self.knob_rotation_r = self.knob_rotation * knob_c                     # 0.12 * 100 = 12 (0-12)
+            self.knob_rotation_r = self.knob_rotation * knob_c                     # 0.18 * 100 = 18 (0-18)
         elif knob_rotation_th / 4 <= self.knob_rotation < knob_rotation_th * 2 / 4:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c      # 0.24 * 100 + 10 = 34 (22-34)
+            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c      # 0.18 * 100 + 10 = 28 (28-45)
         elif knob_rotation_th * 2 / 4 <= self.knob_rotation < knob_rotation_th * 3 / 4:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 2  # 0.36 * 100 + 10 * 2 = 56 (44-56)
+            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 2  # 0.35 * 100 + 10 * 2 = 55 (55-73)
         elif knob_rotation_th * 3 / 4 <= self.knob_rotation < knob_rotation_th:
-            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 3  # 0.53 * 100 + 10 * 5 = 103 (86-103)
+            self.knob_rotation_r = self.knob_rotation * knob_c + knob_bonus_c * 3  # 0.53 * 100 + 10 * 3 = 83 (83-100)
         elif knob_rotation_th <= self.knob_rotation:
-            self.knob_rotation_r = knob_rotation_th * knob_c + knob_bonus_c * 10 # 0.53 * 100 + 10 * 5 = 103 (103- )
+            self.knob_rotation_r = knob_rotation_th * knob_c + knob_bonus_c * 10   # 0.7 * 100 + 10 * 10 = 170 (170)
 
         if self.door_rotation < 0:
-            self.panel_rotation_r =  self.door_rotation            
+            self.panel_rotation_r =  self.door_rotation                            # 
         elif 0 <= self.door_rotation < door_rotation_th * 1 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.12 * 100 + 10 (0-22)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.23 * 100 + 10 (10-33)
         elif door_rotation_th * 1 / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.24 * 100 + 10 * 2 (32-44)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.23 * 100 + 10 * 2 (43-65)
         elif door_rotation_th * 2 / 4 <= self.door_rotation < door_rotation_th * 3 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.36 * 100 + 10 * 3 (54-66)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.45 * 100 + 10 * 3 (75-98)
         elif door_rotation_th * 3 / 4 <= self.door_rotation < door_rotation_th:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.48 * 100 + 10 * 5 (86-98)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.68 * 100 + 10 * 5 (118-140)
         elif door_rotation_th <= self.door_rotation:
-            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10 # 0.89 * 100 + 10 * 10 (189- )
+            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10   # 0.9 * 100 + 10 * 10 (190)
 
         print("##1 knob_rotation_r", self.knob_rotation_r, self.knob_rotation)
         print("##2 panel_rotation_r", self.panel_rotation_r, self.door_rotation)

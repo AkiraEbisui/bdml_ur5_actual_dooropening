@@ -151,6 +151,7 @@ def main():
     tf.compat.v1.set_random_seed(seed)
     env.seed(seed=seed)
 
+    avg10_return_list = deque(maxlen=10) # 10
     avg_return_list = deque(maxlen=maxlen_num) # 10
     avg_knob_r_list = deque(maxlen=maxlen_num) # 10
     avg_panel_r_list = deque(maxlen=maxlen_num) # 10
@@ -207,6 +208,7 @@ def main():
     # save fig
     x_data = []
     y_data = []
+    y_data_10return = []
     y_data_knob_r = []
     y_data_panel_r = []
     y_data_action_r = []
@@ -271,6 +273,7 @@ def main():
 
     ax1 = fig.add_subplot(4, 3, 1)
     ax1.plot(x_data, y_data, 'r-')#, label="rewards")
+    ax1.plot(x_data, y_data_10return, 'm-')#, label="rewards")
     ax1.plot(x_data, y_data_knob_r, 'b-')#, label="knob_rx10")
     ax1.plot(x_data, y_data_panel_r, 'g-')#, label="panel_rx10")
     ax1.plot(x_data, y_data_action_r, 'c-')#, label="action_rx10")
@@ -407,6 +410,7 @@ def main():
         avg_pol_loss_list.append(pol_loss)
         avg_val_loss_list.append(val_loss)
         avg_return_list.append([np.sum(t['rewards']) for t in trajectories])
+        avg10_return_list.append([np.sum(t['rewards']) for t in trajectories])
         avg_knob_r_list.append(env.knob_rotation_r * 10)
         avg_panel_r_list.append(env.panel_rotation_r * 10)
         avg_action_r_list.append(env.action_r * 10)
@@ -465,6 +469,7 @@ def main():
 
         x_data.append(update)
         y_data.append(np.mean(avg_return_list))
+        y_data_10return.append(np.mean(avg10_return_list))
         y_data_knob_r.append(np.mean(avg_knob_r_list))
         y_data_panel_r.append(np.mean(avg_panel_r_list))
         y_data_action_r.append(np.mean(avg_action_r_list))
@@ -526,6 +531,7 @@ def main():
 
         if (update%1) == 0:
             ax1.plot(x_data, y_data, 'r-')
+            ax1.plot(x_data, y_data_10return, 'm-')
             ax1.plot(x_data, y_data_knob_r, 'b-')
             ax1.plot(x_data, y_data_panel_r, 'g-')
             ax1.plot(x_data, y_data_action_r, 'c-')
