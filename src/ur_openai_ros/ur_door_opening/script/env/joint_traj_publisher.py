@@ -22,7 +22,6 @@ from ur5_interface_for_door import UR5Interface
 from robotiq_interface_for_door import RobotiqInterface
 
 moveit = rospy.get_param("/moveit")
-dt_act = rospy.get_param("/act_params/dt_act")
 dt_reset = rospy.get_param("/act_params/dt_reset")
 
 class JointTrajPub(object):
@@ -57,7 +56,7 @@ class JointTrajPub(object):
     	rospy.logdebug("_joint_traj_pub Publisher Connected")
     	rospy.logdebug("All Joint Publishers READY")
 
-    def FollowJointTrajectoryCommand(self, joints_array): # dtype=float32), <type 'numpy.ndarray'>
+    def FollowJointTrajectoryCommand(self, joints_array, dt_act): # dtype=float32), <type 'numpy.ndarray'>
 #    	rospy.loginfo("FollowJointTrajectoryCommand")
 
         try:

@@ -50,7 +50,7 @@ class PPOGAEAgent(object):
         self.counter = 0
 
         # load the parameters 
-        #self.saver.restore(self.sess, './results/ppo_with_gae_model-30')
+        #self.saver.restore(self.sess, './results/ppo_with_gae_model-40')
 
     def _build_graph(self):
         self.g = tf.Graph()

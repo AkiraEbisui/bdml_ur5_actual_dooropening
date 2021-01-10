@@ -64,6 +64,8 @@ sub_step1 = rospy.get_param("/ML/sub_step1")
 sub_step2 = rospy.get_param("/ML/sub_step2")
 act_add = rospy.get_param("/ML/act_add")
 
+dt_act1 = rospy.get_param("/act_params/dt_act1")
+dt_act2 = rospy.get_param("/act_params/dt_act2")
 change_sub = rospy.get_param("/act_params/change_sub")
 sub_a0 = rospy.get_param("/act_params/sub_a0")
 sub_a1 = rospy.get_param("/act_params/sub_a1")
@@ -330,7 +332,9 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         self.rt_imu = Imu()
         self.microstrain_imu = Imu()
-#        self.end_effector = Point() 
+
+        self.success = 0
+        self.success_times = 0
 
         # Arm/Control parameters
         self._ik_params = setups['UR5_6dof']['ik_params']
@@ -847,6 +851,10 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.delta_torque_y = 0
         self.delta_torque_z = 0
 
+        self.success_times += self.success
+        print("success_times", self.success_times)
+        self.success = 0
+
         if self.moveit ==0:
             self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
             time.sleep(1)
@@ -906,11 +914,11 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
        	observation = self.get_observations()
         return observation
 
-    def _act(self, action):
+    def _act(self, action, dt_act):
         if self._ctrl_type == 'traj_pos':
             if self.moveit == 0:
                 self.pre_ctrl_type = 'traj_pos'
-                self._joint_traj_pubisher.FollowJointTrajectoryCommand(action)
+                self._joint_traj_pubisher.FollowJointTrajectoryCommand(action, dt_act)
             elif self.moveit == 1:
                 self._joint_traj_pubisher.MoveItCommand(action)
         elif self._ctrl_type == 'pos':
@@ -918,7 +926,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
             self._joint_pubisher.move_joints(action)
         elif self._ctrl_type == 'traj_vel':
             self.pre_ctrl_type = 'traj_vel'
-            self._joint_traj_pubisher.FollowJointTrajectoryCommand(action)
+            self._joint_traj_pubisher.FollowJointTrajectoryCommand(action, dt_act)
         elif self._ctrl_type == 'vel':
             self.pre_ctrl_type = 'vel'
             self._joint_pubisher.move_joints(action)
@@ -953,8 +961,10 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         if arr_current_joint_value[5] < self.wr3_init_value2 + change_sub:
             self.sub_step = sub_step1
+            self.dt_act = dt_act1
         else:
             self.sub_step = sub_step2
+            self.dt_act = dt_act2
 
         for x in range(1, self.sub_step + 1):
             self.cartesian_flag = 0
@@ -1041,7 +1051,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 print("self.sub_action", self.sub_action)
 
             if self.check_cartesian_limits(self.sub_action) is True:
-                self._act(self.sub_action)
+                self._act(self.sub_action, self.dt_act)
                 self.wrench_stamped
                 self.force = self.wrench_stamped.wrench.force
                 self.torque = self.wrench_stamped.wrench.torque
@@ -1233,7 +1243,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         done = self.check_done(update)
 
         if self.act_end == 1:
-            self._act(self.previous_action)
+            self._act(self.previous_action, self.dt_act)
             print("act previous_action", self.previous_action)
 
         return observation, reward, done, {}
@@ -1337,6 +1347,8 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
             self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.68 * 100 + 10 * 5 (118-140)
         elif door_rotation_th <= self.door_rotation:
             self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10   # 0.9 * 100 + 10 * 10 (190)
+            self.success = 1
+            print("success", self.success)
 
         print("##1 knob_rotation_r", self.knob_rotation_r, self.knob_rotation)
         print("##2 panel_rotation_r", self.panel_rotation_r, self.door_rotation)

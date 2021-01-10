@@ -5,15 +5,15 @@ ML:
   n_act: 6
   epochs: 10
   hdim: 64
-  policy_lr: 1e-4
-  value_lr: 1e-4
+  policy_lr: 5e-5
+  value_lr: 5e-5
   max_std: 1.0
   clip_range: 0.2
 
   n_step: 32 # 16
   act_step: 1 # 30
   sub_step1: 1 # 3
-  sub_step2: 3 # 3
+  sub_step2: 6 # 3
   act_add: 1
   maxlen_num: 1 # 10
   save_step: 10
@@ -40,7 +40,8 @@ max_static_limit:  0.5 #  0.1 when using only wrist_3
 
 # act
 act_params:
-  dt_act: 0.5
+  dt_act1: 0.7
+  dt_act2: 0.18
   dt_reset: 1.3
   change_sub: 0.65
   sub_a0: 500     # 20
@@ -71,7 +72,7 @@ obs_params:
 reward_params:
   knob_c: 30        #1 rotation of knob(+)
   knob_bonus_c: 10   #2 bonus of knob rotation(+)
-  panel_c: 1300       #3 door panel open(+)
+  panel_c: 2000       #3 door panel open(+)
   panel_b_c: 10      #4 door panel before open(-)
   force_c: 10        #6 over force limit1(-)
   force_c2: 50       #  over force limit2(-)
@@ -87,7 +88,7 @@ reward_params:
   catesian_rpy_c: 0
   cartesian_c: 10    #   bonus (+)
   knob_rotation_th: 0.7
-  door_rotation_th: 0.9
+  door_rotation_th: 0.5
 
 observations: # Observations you want to use for the learning
   - shp_joint_ang # 6
@@ -263,7 +264,7 @@ close_door_xyz:
   rpy_y: 1.5907502956467094
 
 init_grp_pose1: 0
-init_grp_pose2: 85  ## 77
+init_grp_pose2: 84  ## 77
 
 # roundknob1&neoprene50A/fingertip 50A 77 or 78
 # roundknob1=83  sliped when 81(knob1 = new one)
