@@ -431,28 +431,28 @@ def main():
         fail_y_hist = []
 
 
-#        if env.success == 1:
-#            success_x_hist = env.rand_list[0] * 1000
-#            arr_success_x_hist = np.array(success_x_hist)
-#            avg_success_x_hist_list.append(arr_success_x_hist)
-#            x_data_success_hist.append(avg_success_x_hist_list)
-#            arr_x_data_success_hist = np.array(x_data_success_hist)
-#            success_y_hist = env.rand_list[1] * 1000
-#            arr_success_y_hist = np.array(success_y_hist)
-#            avg_success_y_hist_list.append(arr_success_y_hist)
-#            y_data_success_hist.append(avg_success_y_hist_list)
-#            arr_y_data_success_hist = np.array(y_data_success_hist)        
-#        else:
-#            fail_x_hist = env.rand_list[0] * 1000
-#            arr_fail_x_hist = np.array(fail_x_hist)
-#            avg_fail_x_hist_list.append(arr_fail_x_hist)
-#            x_data_fail_hist.append(avg_fail_x_hist_list)
-#            arr_x_data_fail_hist = np.array(x_data_fail_hist)
-#            fail_y_hist = env.rand_list[1] * 1000
-#            arr_fail_y_hist = np.array(fail_y_hist)
-#            avg_fail_y_hist_list.append(arr_fail_y_hist)
-#            y_data_fail_hist.append(avg_fail_y_hist_list)
-#            arr_y_data_fail_hist = np.array(y_data_fail_hist)        
+        if env.success == 1:
+            success_x_hist = env.rand_list[0] * 1000
+            arr_success_x_hist = np.array(success_x_hist)
+            avg_success_x_hist_list.append(arr_success_x_hist)
+            x_data_success_hist.append(avg_success_x_hist_list)
+            arr_x_data_success_hist = np.array(x_data_success_hist)
+            success_y_hist = env.rand_list[1] * 1000
+            arr_success_y_hist = np.array(success_y_hist)
+            avg_success_y_hist_list.append(arr_success_y_hist)
+            y_data_success_hist.append(avg_success_y_hist_list)
+            arr_y_data_success_hist = np.array(y_data_success_hist)        
+        else:
+            fail_x_hist = env.rand_list[0] * 1000
+            arr_fail_x_hist = np.array(fail_x_hist)
+            avg_fail_x_hist_list.append(arr_fail_x_hist)
+            x_data_fail_hist.append(avg_fail_x_hist_list)
+            arr_x_data_fail_hist = np.array(x_data_fail_hist)
+            fail_y_hist = env.rand_list[1] * 1000
+            arr_fail_y_hist = np.array(fail_y_hist)
+            avg_fail_y_hist_list.append(arr_fail_y_hist)
+            y_data_fail_hist.append(avg_fail_y_hist_list)
+            arr_y_data_fail_hist = np.array(y_data_fail_hist)        
 
         avg_return_list.append([np.sum(t['rewards']) for t in trajectories])
         avg_knob_r_list.append(env.knob_rotation_r * 30)
@@ -630,7 +630,7 @@ def main():
 #            ax10.plot(x_data_f, y_data_min_act_correct, 'b-', linestyle="dashed")
 #            ax10.plot(x_data_f, y_data_max_door_tolerance, 'g-', linestyle="solid")
 #            ax10.plot(x_data_f, y_data_min_door_tolerance, 'g-', linestyle="dashed")
-#            ax11.plot(x_data_f, y_data_success, 'r-', linestyle="solid")
+            ax11.plot(x_data_f, y_data_success, 'r-', linestyle="solid")
 #            ax12.plot(x_data_f, y_data_fail_knob_and_panel, 'r-', linestyle="solid")
 #            ax12.plot(x_data_f, y_data_fail_taxel, 'b-', linestyle="solid")
 #            ax12.plot(x_data_f, y_data_fail_force, 'g-', linestyle="solid")

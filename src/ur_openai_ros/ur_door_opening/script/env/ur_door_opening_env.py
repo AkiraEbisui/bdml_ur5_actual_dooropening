@@ -63,6 +63,7 @@ n_step = rospy.get_param("/ML/n_step")
 sub_step1 = rospy.get_param("/ML/sub_step1")
 sub_step2 = rospy.get_param("/ML/sub_step2")
 act_add = rospy.get_param("/ML/act_add")
+random_grasp = rospy.get_param("/ML/random_grasp")
 
 dt_act1 = rospy.get_param("/act_params/dt_act1")
 dt_act2 = rospy.get_param("/act_params/dt_act2")
@@ -351,9 +352,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         # Gripper interface
         self.gripper = RobotiqInterface()
-
-        # Joint trajectory publisher
-        self.jointtrajpub = JointTrajPub()
 
         self.force = self.wrench_stamped.wrench.force
         self.torque = self.wrench_stamped.wrench.torque
@@ -779,15 +777,15 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if self.moveit ==0:
             self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
             time.sleep(1)
-#            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
-#            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
-#            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
-            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_init_pos1)
+#            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
+#            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
+#            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
+            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_init_pos1)
         elif self.moveit ==1:
-#            self.jointtrajpub.MoveItCommand(self.far_xyz)
-#            self.jointtrajpub.MoveItCommand(self.before_close_xyz)
-#            self.jointtrajpub.MoveItCommand(self.close_door_xyz)
-            self.jointtrajpub.MoveItJointTarget(self.init_pos1)
+#            self._joint_traj_pubisher.MoveItCommand(self.far_xyz)
+#            self._joint_traj_pubisher.MoveItCommand(self.before_close_xyz)
+#            self._joint_traj_pubisher.MoveItCommand(self.close_door_xyz)
+            self._joint_traj_pubisher.MoveItJointTarget(self.init_pos1)
 
     # Resets the state of the environment and returns an initial observation.
     def reset(self):
@@ -858,17 +856,17 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if self.moveit ==0:
             self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
             time.sleep(1)
-#            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
-#            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
-            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
-#            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_init_pos1)
+#            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_far_pose)
+#            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_before_close_pose)
+            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
+#            self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_init_pos1)
         elif self.moveit ==1:
             self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
             time.sleep(1)
-#            self.jointtrajpub.MoveItCommand(self.far_xyz)
-#            self.jointtrajpub.MoveItCommand(self.before_close_xyz)
-            self.jointtrajpub.MoveItCommand(self.close_door_xyz)
-#            self.jointtrajpub.MoveItJointTarget(self.init_pos1)
+#            self._joint_traj_pubisher.MoveItCommand(self.far_xyz)
+#            self._joint_traj_pubisher.MoveItCommand(self.before_close_xyz)
+            self._joint_traj_pubisher.MoveItCommand(self.close_door_xyz)
+#            self._joint_traj_pubisher.MoveItJointTarget(self.init_pos1)
 
         # 2nd: Check all subscribers work.
         rospy.logdebug("check_all_systems_ready...")
@@ -879,22 +877,35 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.torque = self.wrench_stamped.wrench.torque
         self.force_ini = copy.deepcopy(self.force)
         self.torque_ini = copy.deepcopy(self.torque)
-        if self.moveit == 0:
-            self.previous_action = copy.deepcopy(self.arr_init_pos2)
-        elif self.moveit == 1:
-            self.previous_action = copy.deepcopy(self.init_pose2)
+
 
         # 4th: Go to start position.
         if self.moveit ==0:
-            self.jointtrajpub.FollowJointTrajectoryCommand_reset(self.arr_init_pos2)
-            time.sleep(1)
-            self.gripper.goto_gripper_pos(self.init_grp_pose2, False)
-            time.sleep(1)
+            if random_grasp == 1:
+                rand = np.random.rand(6) # random number 0 to 1
+                rand = 1 - rand * 2      # random number -1 to 1
+                self.rand_list = rand.tolist()
+                self.rand_list = [self.rand_list[0] / 100, 0, 0, 0 ,0, 0]   
+                print("rand_list", self.rand_list)         
+                random_position = [self.rand_list[0] + self.init_pose2[0], self.rand_list[1] + self.init_pose2[1], self.rand_list[2] + self.init_pose2[2], self.rand_list[3] + self.init_pose2[3], self.rand_list[4] + self.init_pose2[4], self.rand_list[5] + self.init_pose2[5]]
+                self._joint_traj_pubisher.MoveItCommand(random_position)
+                random_ini_pose = self.get_joint_value()
+                self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(random_ini_pose)                
+                self.gripper.goto_gripper_pos(self.init_grp_pose2, False)
+                time.sleep(1)
+                random_ini_pose = self.get_joint_value()
+                self.previous_action = copy.deepcopy(random_ini_pose)
+            else:
+                self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_init_pos2)
+                time.sleep(1)
+                self.gripper.goto_gripper_pos(self.init_grp_pose2, False)
+                time.sleep(1)
+                self.previous_action = copy.deepcopy(self.arr_init_pos2)
         elif self.moveit ==1:
-            self.jointtrajpub.MoveItJointTarget(self.init_pos2)
-#            print(self.get_xyz(self.init_pos2), self.get_orientation(self.init_pos2))
+            self._joint_traj_pubisher.MoveItJointTarget(self.init_pos2)
             self.gripper.goto_gripper_pos(self.init_grp_pose2, False)
             time.sleep(1)
+            self.previous_action = copy.deepcopy(self.init_pose2)
 
         # 5th: Get the State Discrete Stringuified version of the observations
         self.static_taxel = self.tactile_static.taxels

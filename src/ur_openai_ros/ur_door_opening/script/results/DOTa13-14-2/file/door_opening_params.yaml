@@ -1,0 +1,322 @@
+# Algortihm Parameters
+ML:
+  seed: 0
+  obs_dim: 44 # 44 or 48 or 100
+  n_act: 6
+  epochs: 10
+  hdim: 64
+  policy_lr: 5e-5
+  value_lr: 5e-5
+  max_std: 1.0
+  clip_range: 0.2
+
+  n_step: 32 # 16
+  act_step: 1 # 30
+  sub_step1: 1 # 3
+  sub_step2: 12 # 3
+  act_add: 1
+  maxlen_num: 1 # 10
+  save_step: 10
+
+  gamma: 0.99
+  lam: 0.98
+  episode_size: 1
+  batch_size: 16
+  nupdates: 3000
+
+# Input type
+control_type: traj_pos #traj_vel or vel or pos or traj_pos
+
+# Output type
+moveit: 0  # on:1 or off:0
+
+# Limit
+force_limit1: 20 # 15 when using only wrist_3
+torque_limit1: 2 #  2 when using only wrist_3
+force_limit2: 30 # 300 ~ over 1000 in position control
+torque_limit2: 3 # 30 ~  in position control
+min_static_limit: -0.5 # -0.1 when using only wrist_3
+max_static_limit:  0.5 #  0.1 when using only wrist_3
+
+# act
+act_params:
+  dt_act1: 0.7
+  dt_act2: 0.09
+  dt_reset: 1.3
+  change_sub: 0.65
+  sub_a0: 500     # 20
+  sub_a1: 1000     # 45
+  sub_a2: 500     # 30
+  sub_a3: 1500     # 60
+  sub_a4: 300     # 10
+  sub_a5: 2      # 0.5
+
+  sub2_a0: 40     # 20
+  sub2_a1: 90     # 45
+  sub2_a2: 60     # 30
+  sub2_a3: 120     # 60
+  sub2_a4: 20     # 10
+  sub2_a5: 40      # 0.5
+
+# normarizing parameters for observations
+obs_params:
+  joint_n: 1
+  eef_n: 10
+  eef_rpy_n: 1
+  force_n: 1 # 0.01
+  torque_n: 1 # 0.1
+  taxel_n: 0.0003 # 0.01
+  nibs_indiv_n: 0.0001 # Max = 5500 @88
+  nibs_fast_n: 0.0002  # Max = 3300 @88
+
+reward_params:
+  knob_c: 30        #1 rotation of knob(+)
+  knob_bonus_c: 10   #2 bonus of knob rotation(+)
+  panel_c: 2000       #3 door panel open(+)
+  panel_b_c: 10      #4 door panel before open(-)
+  force_c: 10        #6 over force limit1(-)
+  force_c2: 50       #  over force limit2(-)
+  taxel_c: 50        #7 release the knob(-)
+  act_0_n: 10        #8 action[0] (+)
+  act_1_n: 10        #  action[1] (+)
+  act_2_n: 10        #  action[2] (+)
+  act_3_n: 10        #  action[3] (+)
+  act_4_n: 10        #  action[4] (+)
+  act_5_n: 10        #  action[5] (+)
+  act_correct_c: 1   #9 act_correct (+)
+  catesian_xyz_c: 0  #10 cartesian (+)
+  catesian_rpy_c: 0
+  cartesian_c: 10    #   bonus (+)
+  knob_rotation_th: 0.7
+  door_rotation_th: 0.5
+
+observations: # Observations you want to use for the learning
+  - shp_joint_ang # 6
+  - shl_joint_ang
+  - elb_joint_ang
+  - wr1_joint_ang
+  - wr2_joint_ang
+  - wr3_joint_ang
+  - shp_joint_vel # 6 (12)
+  - shl_joint_vel
+  - elb_joint_vel
+  - wr1_joint_vel
+  - wr2_joint_vel
+  - wr3_joint_vel
+  - eef_x # 3 (15)
+  - eef_y
+  - eef_z
+  - eef_rpy_x # 3 (18)
+  - eef_rpy_y
+  - eef_rpy_z
+  - force_x # 3 (21)
+  - force_y
+  - force_z
+  - torque_x # 3 (24)
+  - torque_y
+  - torque_z
+  - image_cnn # 20 (1-44)
+#  - static_taxel # 56
+#  - dynamic_taxel
+#  - nibs_cnn # 20 (2-44)
+#  - nibs_indiv # 72 (3-96)
+#  - nibs_fast # 4 (2-48), (3-100)
+#  - nibs_robotiq_cnn # 20 (44)
+#  - nibs_robotiq_fast # 4 (48)
+
+joint_names: ['shoulder_link', 'upper_arm_link', 'forearm_link', 'wrist_1_link', 'wrist_2_link', 'wrist_3_link']
+
+#init_joint_pose0:
+#  shp: 1.55
+#  shl: -1.81
+#  elb: 2.26
+#  wr1: -2.02
+#  wr2: -1.57
+#  wr3: 3.11
+
+init_joint_pose1:
+  shp: 1.4410264033536153
+  shl: -1.6883855417730604
+  elb: 2.6771635884219136
+  wr1: 2.1674968289716623
+  wr2: -1.4199836765311638
+  wr3: 1.5702616267031195
+
+init_pose1: 
+  x: -0.0885099948719
+  y: 0.26240898805
+  z: 0.276761238126
+  rpy_r: 1.5726264661147165
+  rpy_p: 0.01579000143745326
+  rpy_y: 1.5912448543568674
+
+init_joint_pose2:
+  shp: 1.491407573528791
+  shl: -1.434487752926512
+  elb: 2.413675198293162
+  wr1: 2.177423014918695
+  wr2: -1.4691158467941916
+  wr3: 1.5733145480767723
+#  wr3: 0.9733145480767723
+
+init_pose2:
+  x: -0.0885606971807
+  y: 0.367100554257
+  z: 0.278060295058
+  rpy_r: 1.5746781585880325
+  rpy_p: 0.01488937165698871
+  rpy_y: 1.5731206693388063
+
+after_rotate_pose:
+  shp: 1.491407573528791
+  shl: -1.434487752926512
+  elb: 2.413675198293162
+  wr1: 2.177423014918695
+  wr2: -1.4691158467941916
+  wr3: 2.5733145480767723
+
+after_rotate_xyz:
+  x: -0.0885606971807
+  y: 0.367100554257
+  z: 0.278060295058
+  rpy_r: 1.5746781585880325
+  rpy_p: 0.01488937165698871
+  rpy_y: 2.5731206693388063
+
+after_pull_pose:
+  shp: 1.648087725653139
+  shl: -1.4969974700328346
+  elb: 2.498128485003836
+  wr1: 2.1563878359790927
+  wr2: -1.7477778260118484
+  wr3: 2.5733145480767723
+
+after_pull_xyz:
+  x: -0.119503224332
+  y: 0.317118121264
+  z: 0.276059107781
+  rpy_r: 2.5706315470591077
+  rpy_p: 0.015724591329912007
+  rpy_y: 1.4710841122970895
+
+after_pull-z_pose:
+  shp: 1.4779845896929604
+  shl: -1.505218648317907
+  elb: 2.497158740699255
+  wr1: 2.1664922513189255
+  wr2: -1.4553428085419409
+  wr3: 2.570130641521743
+
+after_pull-z_xyz:
+  x: -0.0879276728811
+  y: 0.335368766515
+  z: 0.278149516185
+  rpy_r: 2.57206518387442
+  rpy_p: 0.016679954095331143
+  rpy_y: 1.593454242367967
+
+far_pose:
+  shp: 1.4410264033536153
+  shl: -1.6883855417730604
+  elb: 2.6771635884219136
+  wr1: 2.1674968289716623
+  wr2: -1.4199836765311638
+  wr3: 1.5702616267031195
+
+far_xyz:
+  x: -0.0882767832034
+  y: 0.263018508941
+  z: 0.277032908416
+  rpy_r: 1.5726244019375042
+  rpy_p: 0.014866180890913027
+  rpy_y: 1.591637731017009
+
+before_close_pose:
+  shp: 1.5857990679615237
+  shl: -1.5611849786259067
+  elb: 2.550973234715942
+  wr1: 2.151942347671375
+  wr2: -1.5845770347385386
+  wr3: 1.5712500016837836
+
+before_close_xyz:
+  x: -0.112115043686
+  y: 0.299623650373
+  z: 0.280956272646
+  rpy_r: 1.5710717414706301
+  rpy_p: 2.6976262816368855e-06
+  rpy_y: 1.5723744353083362
+
+close_door_pose:
+  shp: 1.4974456350976515
+  shl: -1.3815174788448505
+  elb: 2.3492944464703363
+  wr1: 2.1884996025671186
+  wr2: -1.4775036417585037
+  wr3: 1.5706990988490845
+
+close_door_xyz:
+  x: -0.0886703820767
+  y: 0.392086764032
+  z: 0.277136118121
+  rpy_r: 1.57211744364666
+  rpy_p: 0.014296212698732096
+  rpy_y: 1.5907502956467094
+
+init_grp_pose1: 0
+init_grp_pose2: 84  ## 77
+
+# roundknob1&neoprene50A/fingertip 50A 77 or 78
+# roundknob1=83  sliped when 81(knob1 = new one)
+# roundknob1&neoprene=88
+# roundknob1&neoprene=77
+# default=120
+
+joint_limits_array:
+  shp_max: 3.14
+  shp_min: -3.14
+  shl_max: 3.14
+  shl_min: -3.14
+  elb_max: 3.14
+  elb_min: -3.14
+  wr1_max: 3.14
+  wr1_min: -3.14
+  wr2_max: 3.14
+  wr2_min: -3.14
+  wr3_max: 3.14
+  wr3_min: -3.14
+
+joint_velocity_limits_array:
+  shp_max: 1.0
+  shp_min: -1.0
+  shl_max: 1.0
+  shl_min: -1.0
+  elb_max: 1.0
+  elb_min: -1.0
+  wr1_max: 1.0
+  wr1_min: -1.0
+  wr2_max: 1.0
+  wr2_min: -1.0
+  wr3_max: 1.0
+  wr3_min: -1.0
+
+cartesian_limits:  # default #On the surface plate
+  x_max: -0.07     # -0.08   #  0.2
+  x_min: -0.135     # -0.11   # -0.45
+  y_max: 0.385      #  0.425  #  0.7
+  y_min: 0.30      #  0.35   # -0.25
+  z_max: 0.29      #  0.31   #  2
+  z_min: 0.264      #  0.26   #  0.15
+
+  rpy_x_max: 3
+  rpy_x_min: 1.5
+  rpy_y_max: 0.02
+  rpy_y_min: 0.01
+  rpy_z_max: 1.60
+  rpy_z_min: 1.44
+
+#episode_done_criteria:
+#  - panel_10deg
+
+  #- minimum_height
+  #- monoped_vertical_orientation

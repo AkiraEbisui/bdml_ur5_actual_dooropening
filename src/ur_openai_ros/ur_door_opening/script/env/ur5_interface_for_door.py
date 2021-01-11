@@ -61,20 +61,20 @@ class UR5Interface:
         table_pose.header = header
         table_pose.pose.position.x = 0
         table_pose.pose.position.y = 0
-        table_pose.pose.position.z = 0.02 # -0.0001
+        table_pose.pose.position.z = -0.0001 # -0.0001
         self.scene.remove_world_object('table')
         self.scene.add_plane(name='table', pose=table_pose, normal=(0, 0, 1))
         upper_pose = PoseStamped()
         upper_pose.header = header
         upper_pose.pose.position.x = 0
         upper_pose.pose.position.y = 0
-        upper_pose.pose.position.z = 0.62 # Optimized (0.55 NG)
+        upper_pose.pose.position.z = 2 # Optimized (0.55 NG)
         self.scene.remove_world_object('upper')
         self.scene.add_plane(name='upper', pose=upper_pose, normal=(0, 0, 1))
         back_pose = PoseStamped()
         back_pose.header = header
         back_pose.pose.position.x = 0
-        back_pose.pose.position.y = -0.25
+        back_pose.pose.position.y = -0.3
         back_pose.pose.position.z = 0
         self.scene.remove_world_object('backWall')
         self.scene.add_plane(name='backWall', pose=back_pose, normal=(0, 1, 0))

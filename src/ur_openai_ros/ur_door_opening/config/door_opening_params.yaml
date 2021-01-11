@@ -13,7 +13,7 @@ ML:
   n_step: 32 # 16
   act_step: 1 # 30
   sub_step1: 1 # 3
-  sub_step2: 6 # 3
+  sub_step2: 12 # 3
   act_add: 1
   maxlen_num: 1 # 10
   save_step: 10
@@ -22,7 +22,9 @@ ML:
   lam: 0.98
   episode_size: 1
   batch_size: 16
+
   nupdates: 3000
+  random_grasp: 1
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
@@ -41,7 +43,7 @@ max_static_limit:  0.5 #  0.1 when using only wrist_3
 # act
 act_params:
   dt_act1: 0.7
-  dt_act2: 0.18
+  dt_act2: 0.09
   dt_reset: 1.3
   change_sub: 0.65
   sub_a0: 500     # 20

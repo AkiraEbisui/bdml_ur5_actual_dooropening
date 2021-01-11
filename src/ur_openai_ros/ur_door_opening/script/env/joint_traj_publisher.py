@@ -32,13 +32,6 @@ class JointTrajPub(object):
         client.wait_for_server()
         print "Connected to server"
 
-        if moveit == 'on':
-            rospy.init_node("test_move_ur5_continuous", anonymous=True, disable_signals=True)
-            ur5 = UR5Interface()
-            # MoveIt! works well if joint limits are smaller (within -pi, pi)
-            if not ur5.check_joint_limits():
-                raise Exception('Bad joint limits! try running roslaunch with option "limited:=true"')
-
     def check_publishers_connection(self):
     	"""
     	Checks that all the publishers are working
@@ -77,7 +70,7 @@ class JointTrajPub(object):
             g.trajectory.points = []
 
             Q1 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
-#            print("Q1", Q1)
+            print("Q1", Q1)
             g.trajectory.points.append(JointTrajectoryPoint(positions=Q1, velocities=[0]*6, time_from_start=rospy.Duration(dt_act)))
 
             client.send_goal(g)
@@ -87,7 +80,7 @@ class JointTrajPub(object):
         except rospy.ROSInterruptException: pass
 
     def FollowJointTrajectoryCommand_reset(self, joints_array): # dtype=float32), <type 'numpy.ndarray'>
-#    	rospy.loginfo("FollowJointTrajectoryCommand")
+#    	rospy.loginfo("FollowJointTrajectoryCommand_reset")
 
         try:
 #            rospy.loginfo (rospy.get_rostime().to_sec())
@@ -107,6 +100,7 @@ class JointTrajPub(object):
             g.trajectory.points = []
 
             Q2 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
+            print("Q2", Q2)
             g.trajectory.points.append(JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(dt_reset)))
 
             client.send_goal(g)
@@ -119,25 +113,27 @@ class JointTrajPub(object):
         try:
             self.ur5 = UR5Interface()
             self.ur5.goto_pose_target(action, False)
+            print("moveit", action)
         except rospy.ROSInterruptException: pass
 
     def MoveItJointTarget(self, joint_array):
         try:
             self.ur5 = UR5Interface()
             self.ur5.goto_joint_target(joint_array, False)
+            print("moveit_target", joint_array)
         except rospy.ROSInterruptException: pass
 
-    def MoveItGrpOpen(self):
-        try:
-            self.grp = moveit_commander.MoveGroupCommander("gripper")
-            self.grp.set_named_target('open')
-            self.grp.go(wait=False)
-        except rospy.ROSInterruptException: pass
+#    def MoveItGrpOpen(self):
+#        try:
+#            self.grp = moveit_commander.MoveGroupCommander("gripper")
+#            self.grp.set_named_target('open')
+#            self.grp.go(wait=False)
+#        except rospy.ROSInterruptException: pass
 
-    def MoveItGrpClose(self):
-        try:
-            self.grp = moveit_commander.MoveGroupCommander("gripper")
-            self.grp.set_named_target('close0.31')
-            self.grp.go(wait=False)
-        except rospy.ROSInterruptException: pass
+#    def MoveItGrpClose(self):
+#        try:
+#            self.grp = moveit_commander.MoveGroupCommander("gripper")
+#            self.grp.set_named_target('close0.31')
+#            self.grp.go(wait=False)
+#        except rospy.ROSInterruptException: pass
 
