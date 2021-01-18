@@ -1,0 +1,18 @@
+('##1 knob_rotation_r', 121.0, 0.8465995314723784)
+('##2 panel_rotation_r', 723.4780678013392, 0.3467390339006696)
+('##3 force_limit_r', 0)
+('##4 static_limit_r', 0)
+('# action5 limit_r', 7.66402783461829)
+('# action4 limit_r', 1.8543497993052238)
+('# action2 limit_r', 0.4265966695699719)
+('# action1 limit_r', 0.23776702212220835)
+('# action0 limit_r', 0.8144932409169159)
+('##5 action_limit_r.', 10.997234566532608)
+('##6 act_correct_r', 1)
+('##7 catesian_xyz_r', 0.0, 0.0, 0.0)
+('##7 catesian_rpy_r', -0.0, -0.0, 0.0)
+('##7 cartesian_bonus_r', 10)
+('### action_r', 11.997234566532608)
+('### total_compute_rewards', 856.4753023678718)
+[62/100]
+

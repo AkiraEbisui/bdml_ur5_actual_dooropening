@@ -70,7 +70,7 @@ class JointTrajPub(object):
             g.trajectory.points = []
 
             Q1 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
-            print("Q1", Q1)
+#            print("Q1", Q1)
             g.trajectory.points.append(JointTrajectoryPoint(positions=Q1, velocities=[0]*6, time_from_start=rospy.Duration(dt_act)))
 
             client.send_goal(g)
@@ -100,7 +100,7 @@ class JointTrajPub(object):
             g.trajectory.points = []
 
             Q2 = [joints_array[0], joints_array[1], joints_array[2], joints_array[3], joints_array[4], joints_array[5]]
-            print("Q2", Q2)
+#            print("Q2", Q2)
             g.trajectory.points.append(JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(dt_reset)))
 
             client.send_goal(g)
@@ -113,14 +113,14 @@ class JointTrajPub(object):
         try:
             self.ur5 = UR5Interface()
             self.ur5.goto_pose_target(action, False)
-            print("moveit", action)
+#            print("moveit", action)
         except rospy.ROSInterruptException: pass
 
     def MoveItJointTarget(self, joint_array):
         try:
             self.ur5 = UR5Interface()
             self.ur5.goto_joint_target(joint_array, False)
-            print("moveit_target", joint_array)
+#            print("moveit_target", joint_array)
         except rospy.ROSInterruptException: pass
 
 #    def MoveItGrpOpen(self):

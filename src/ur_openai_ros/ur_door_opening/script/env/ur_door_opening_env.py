@@ -1176,7 +1176,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                     print(x, "act correctly", self.act_correct_n)
                     if x == self.sub_step:
                         self.previous_action = copy.deepcopy(self.sub_action)
-                        print("copy previous_action")                   
+#                        print("copy previous_action")                   
 
                 if self.force_limit1 < self.delta_force_x or self.delta_force_x < -self.force_limit1:
 #                    self._act(self.previous_action)
@@ -1255,7 +1255,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         if self.act_end == 1:
             self._act(self.previous_action, self.dt_act)
-            print("act previous_action", self.previous_action)
+            print("act previous_action")
 
         return observation, reward, done, {}
 
@@ -1357,7 +1357,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         elif door_rotation_th * 3 / 4 <= self.door_rotation < door_rotation_th:
             self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.68 * 100 + 10 * 5 (118-140)
         elif door_rotation_th <= self.door_rotation:
-            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10   # 0.9 * 100 + 10 * 10 (190)
+            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 3000   # 0.9 * 100 + 10 * 1000 (10090)
             self.success = 1
             print("success", self.success)
 
@@ -1485,7 +1485,12 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
     def check_done(self, update):
         if update > 1:
             observation = self.get_observations()
-            if self.force_limit2 < self.delta_force_x or self.delta_force_x < -self.force_limit2:
+            if self.success == 1:
+                print("#########################################")
+                print("################ success ################", update)
+                print("#########################################")
+                return True
+            elif self.force_limit2 < self.delta_force_x or self.delta_force_x < -self.force_limit2:
                 print("########## force.x over the limit2 ##########", self.delta_force_x)
 #                return True
             elif self.force_limit2 < self.delta_force_y or self.delta_force_y < -self.force_limit2:

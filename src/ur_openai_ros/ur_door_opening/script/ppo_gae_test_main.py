@@ -35,6 +35,7 @@ lam = rospy.get_param("/ML/lam")
 episode_size = rospy.get_param("/ML/episode_size")
 batch_size = rospy.get_param("/ML/batch_size")
 #nupdates = rospy.get_param("/ML/nupdates")
+random_grasp = rospy.get_param("/ML/random_grasp")
 nupdates = 100
 maxlen_num = 1
 
@@ -290,9 +291,9 @@ def main():
 
     ax1 = fig.add_subplot(4, 3, 1)
     ax1.plot(x_data, y_data, 'r-', label="rewards")
-    ax1.plot(x_data, y_data_knob_r, 'b-', label="knob_rx30")
-    ax1.plot(x_data, y_data_panel_r, 'g-', label="panel_rx30")
-    ax1.plot(x_data, y_data_action_r, 'c-', label="action_rx30")
+    ax1.plot(x_data, y_data_knob_r, 'b-', label="knob_rx10")
+    ax1.plot(x_data, y_data_panel_r, 'g-', label="panel_rx1")
+    ax1.plot(x_data, y_data_action_r, 'c-', label="action_rx10")
     ax1.set_xlabel("episodes")
     ax1.set_ylabel("ave_return")
     ax1.grid(axis='both')
@@ -455,9 +456,9 @@ def main():
             arr_y_data_fail_hist = np.array(y_data_fail_hist)        
 
         avg_return_list.append([np.sum(t['rewards']) for t in trajectories])
-        avg_knob_r_list.append(env.knob_rotation_r * 30)
-        avg_panel_r_list.append(env.panel_rotation_r * 30)
-        avg_action_r_list.append(env.action_r * 30)
+        avg_knob_r_list.append(env.knob_rotation_r * 10)
+        avg_panel_r_list.append(env.panel_rotation_r * 1)
+        avg_action_r_list.append(env.action_r * 10)
         avg_entropy_list.append(entropy)
         avg_max_knob_rotation_list.append(env.max_knob_rotation)
         avg_max_door_rotation_list.append(env.max_door_rotation * 10)
@@ -588,12 +589,17 @@ def main():
             ax1.plot(x_data, y_data_knob_r, 'b-')
             ax1.plot(x_data, y_data_panel_r, 'g-')
             ax1.plot(x_data, y_data_action_r, 'c-')
-            if env.success == 1:
-                ax2.hist(arr_x_data_success_hist, facecolor='b')
-                ax3.hist(arr_y_data_success_hist, facecolor='b')
-            else:
-                ax2.hist(arr_x_data_fail_hist, facecolor='r')
-                ax3.hist(arr_y_data_fail_hist, facecolor='r')
+            if random_grasp ==1:
+                if env.success == 1:
+#                    ax2.hist(arr_x_data_success_hist, facecolor='b')
+#                    ax3.hist(arr_y_data_success_hist, facecolor='b')
+                    ax2.hist(arr_success_x_hist, facecolor='b')
+                    ax3.hist(arr_success_y_hist, facecolor='b')
+                else:
+#                    ax2.hist(arr_x_data_fail_hist, facecolor='r')
+#                    ax3.hist(arr_y_data_fail_hist, facecolor='r')
+                    ax2.hist(arr_fail_x_hist, facecolor='r')
+                    ax3.hist(arr_fail_y_hist, facecolor='r')
             ax4.plot(x_data_e, y_data_e, 'c-')
             ax5.plot(x_data_k, y_data_k, 'r-')
             ax5.plot(x_data_k, y_data_d, 'b-')

@@ -412,7 +412,7 @@ def main():
         avg_return_list.append([np.sum(t['rewards']) for t in trajectories])
         avg10_return_list.append([np.sum(t['rewards']) for t in trajectories])
         avg_knob_r_list.append(env.knob_rotation_r * 10)
-        avg_panel_r_list.append(env.panel_rotation_r * 10)
+        avg_panel_r_list.append(env.panel_rotation_r * 1)
         avg_action_r_list.append(env.action_r * 10)
         avg_entropy_list.append(entropy)
         avg_max_knob_rotation_list.append(env.max_knob_rotation)
