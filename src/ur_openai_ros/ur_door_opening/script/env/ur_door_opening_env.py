@@ -849,8 +849,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         self.delta_torque_y = 0
         self.delta_torque_z = 0
 
-        self.success_times += self.success
-        print("success_times", self.success_times)
         self.success = 0
 
         if self.moveit ==0:
@@ -881,12 +879,15 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 
         # 4th: Go to start position.
         if self.moveit ==0:
-            if random_grasp == 1:
+            if random_grasp >= 1:
                 rand = np.random.rand(6) # random number 0 to 1
                 rand = 1 - rand * 2      # random number -1 to 1
                 self.rand_list = rand.tolist()
-                self.rand_list = [self.rand_list[0] / 100, 0, 0, 0 ,0, 0]   
-                print("rand_list", self.rand_list)         
+                if random_grasp == 1:
+                    self.rand_list = [self.rand_list[0] / 100, 0, 0, 0 ,0, 0]
+                elif random_grasp == 2:
+                    self.rand_list = [self.rand_list[0] / 100, self.rand_list[1] / 100, 0, 0 ,0, 0]                 
+                print("rand_list", self.rand_list)
                 random_position = [self.rand_list[0] + self.init_pose2[0], self.rand_list[1] + self.init_pose2[1], self.rand_list[2] + self.init_pose2[2], self.rand_list[3] + self.init_pose2[3], self.rand_list[4] + self.init_pose2[4], self.rand_list[5] + self.init_pose2[5]]
                 self._joint_traj_pubisher.MoveItCommand(random_position)
                 random_ini_pose = self.get_joint_value()
@@ -896,6 +897,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 random_ini_pose = self.get_joint_value()
                 self.previous_action = copy.deepcopy(random_ini_pose)
             else:
+                self.rand_list = [0, 0, 0, 0 ,0, 0]
                 self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_init_pos2)
                 time.sleep(1)
                 self.gripper.goto_gripper_pos(self.init_grp_pose2, False)
@@ -1170,7 +1172,6 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                 elif self.max_static_taxel0 > self.max_static_limit or self.max_static_taxel1 > self.max_static_limit:
                     print(x, "slipped and break the for loop(max over)", self.max_static_taxel0, self.max_static_taxel1)
                     self.act_end = 1
-
                 else:
                     self.act_correct_n += 1
                     print(x, "act correctly", self.act_correct_n)
@@ -1252,10 +1253,10 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         # finally we get an evaluation based on what happened in the sim
         reward = self.compute_dist_rewards(action, update)
         done = self.check_done(update)
+        print("success_times", self.success_times)
 
         if self.act_end == 1:
             self._act(self.previous_action, self.dt_act)
-            print("act previous_action")
 
         return observation, reward, done, {}
 
@@ -1349,15 +1350,15 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if self.door_rotation < 0:
             self.panel_rotation_r =  self.door_rotation                            # 
         elif 0 <= self.door_rotation < door_rotation_th * 1 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.23 * 100 + 10 (10-33)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.075 * 100 + 10 (10-17.5)
         elif door_rotation_th * 1 / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.23 * 100 + 10 * 2 (43-65)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.15 * 100 + 10 * 2 (27.5-35)
         elif door_rotation_th * 2 / 4 <= self.door_rotation < door_rotation_th * 3 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.45 * 100 + 10 * 3 (75-98)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.225 * 100 + 10 * 3 (45-55.5)
         elif door_rotation_th * 3 / 4 <= self.door_rotation < door_rotation_th:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.68 * 100 + 10 * 5 (118-140)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.3 * 100 + 10 * 5 (75.5-80 * 32 = 256)
         elif door_rotation_th <= self.door_rotation:
-            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 3000   # 0.9 * 100 + 10 * 1000 (10090)
+            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 1000 + (n_step - update) * 1000 # 0.3 * 100 + 10 * 1000 (10030)
             self.success = 1
             print("success", self.success)
 
@@ -1486,6 +1487,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if update > 1:
             observation = self.get_observations()
             if self.success == 1:
+                self.success_times += self.success
                 print("#########################################")
                 print("################ success ################", update)
                 print("#########################################")

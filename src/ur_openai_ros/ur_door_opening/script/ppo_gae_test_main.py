@@ -431,29 +431,29 @@ def main():
         success_y_hist = []
         fail_y_hist = []
 
-
-        if env.success == 1:
-            success_x_hist = env.rand_list[0] * 1000
-            arr_success_x_hist = np.array(success_x_hist)
-            avg_success_x_hist_list.append(arr_success_x_hist)
-            x_data_success_hist.append(avg_success_x_hist_list)
-            arr_x_data_success_hist = np.array(x_data_success_hist)
-            success_y_hist = env.rand_list[1] * 1000
-            arr_success_y_hist = np.array(success_y_hist)
-            avg_success_y_hist_list.append(arr_success_y_hist)
-            y_data_success_hist.append(avg_success_y_hist_list)
-            arr_y_data_success_hist = np.array(y_data_success_hist)        
-        else:
-            fail_x_hist = env.rand_list[0] * 1000
-            arr_fail_x_hist = np.array(fail_x_hist)
-            avg_fail_x_hist_list.append(arr_fail_x_hist)
-            x_data_fail_hist.append(avg_fail_x_hist_list)
-            arr_x_data_fail_hist = np.array(x_data_fail_hist)
-            fail_y_hist = env.rand_list[1] * 1000
-            arr_fail_y_hist = np.array(fail_y_hist)
-            avg_fail_y_hist_list.append(arr_fail_y_hist)
-            y_data_fail_hist.append(avg_fail_y_hist_list)
-            arr_y_data_fail_hist = np.array(y_data_fail_hist)        
+        if random_grasp >=1:
+            if env.success == 1:
+                success_x_hist = env.rand_list[0] * 1000
+                arr_success_x_hist = np.array(success_x_hist)
+                avg_success_x_hist_list.append(arr_success_x_hist)
+                x_data_success_hist.append(avg_success_x_hist_list)
+                arr_x_data_success_hist = np.array(x_data_success_hist)
+                success_y_hist = env.rand_list[1] * 1000
+                arr_success_y_hist = np.array(success_y_hist)
+                avg_success_y_hist_list.append(arr_success_y_hist)
+                y_data_success_hist.append(avg_success_y_hist_list)
+                arr_y_data_success_hist = np.array(y_data_success_hist)        
+            else:
+                fail_x_hist = env.rand_list[0] * 1000
+                arr_fail_x_hist = np.array(fail_x_hist)
+                avg_fail_x_hist_list.append(arr_fail_x_hist)
+                x_data_fail_hist.append(avg_fail_x_hist_list)
+                arr_x_data_fail_hist = np.array(x_data_fail_hist)
+                fail_y_hist = env.rand_list[1] * 1000
+                arr_fail_y_hist = np.array(fail_y_hist)
+                avg_fail_y_hist_list.append(arr_fail_y_hist)
+                y_data_fail_hist.append(avg_fail_y_hist_list)
+                arr_y_data_fail_hist = np.array(y_data_fail_hist)        
 
         avg_return_list.append([np.sum(t['rewards']) for t in trajectories])
         avg_knob_r_list.append(env.knob_rotation_r * 10)
@@ -589,7 +589,7 @@ def main():
             ax1.plot(x_data, y_data_knob_r, 'b-')
             ax1.plot(x_data, y_data_panel_r, 'g-')
             ax1.plot(x_data, y_data_action_r, 'c-')
-            if random_grasp ==1:
+            if random_grasp >=1:
                 if env.success == 1:
 #                    ax2.hist(arr_x_data_success_hist, facecolor='b')
 #                    ax3.hist(arr_y_data_success_hist, facecolor='b')
@@ -631,9 +631,9 @@ def main():
             ax9.plot(x_data_f, y_data_min_taxel0, 'r-', linestyle="dashed")
             ax9.plot(x_data_f, y_data_max_taxel1, 'b-', linestyle="solid")
             ax9.plot(x_data_f, y_data_min_taxel1, 'b-', linestyle="dashed")
-#            ax10.plot(x_data_f, y_data_step, 'r-', linestyle="solid")
-#            ax10.plot(x_data_f, y_data_max_act_correct, 'b-', linestyle="solid")
-#            ax10.plot(x_data_f, y_data_min_act_correct, 'b-', linestyle="dashed")
+            ax10.plot(x_data_f, y_data_step, 'r-', linestyle="solid")
+            ax10.plot(x_data_f, y_data_max_act_correct, 'b-', linestyle="solid")
+            ax10.plot(x_data_f, y_data_min_act_correct, 'b-', linestyle="dashed")
 #            ax10.plot(x_data_f, y_data_max_door_tolerance, 'g-', linestyle="solid")
 #            ax10.plot(x_data_f, y_data_min_door_tolerance, 'g-', linestyle="dashed")
             ax11.plot(x_data_f, y_data_success, 'r-', linestyle="solid")
