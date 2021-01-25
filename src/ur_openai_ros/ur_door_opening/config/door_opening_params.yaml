@@ -5,8 +5,8 @@ ML:
   n_act: 6
   epochs: 10
   hdim: 64
-  policy_lr: 5e-5
-  value_lr: 5e-5
+  policy_lr: 1e-4
+  value_lr: 1e-4
   max_std: 1.0
   clip_range: 0.2
 

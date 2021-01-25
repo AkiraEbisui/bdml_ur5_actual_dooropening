@@ -1350,15 +1350,16 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if self.door_rotation < 0:
             self.panel_rotation_r =  self.door_rotation                            # 
         elif 0 <= self.door_rotation < door_rotation_th * 1 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.075 * 100 + 10 (10-17.5)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c      # 0.075 * 2000 + 10 (10-160)
         elif door_rotation_th * 1 / 4 <= self.door_rotation < door_rotation_th * 2 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.15 * 100 + 10 * 2 (27.5-35)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 2  # 0.15 * 2000 + 10 * 2 (170-320)
         elif door_rotation_th * 2 / 4 <= self.door_rotation < door_rotation_th * 3 / 4:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.225 * 100 + 10 * 3 (45-55.5)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 3  # 0.225 * 2000 + 10 * 3 (330-510)
         elif door_rotation_th * 3 / 4 <= self.door_rotation < door_rotation_th:
-            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.3 * 100 + 10 * 5 (75.5-80 * 32 = 256)
+            self.panel_rotation_r =  self.door_rotation * panel_c + panel_b_c * 5  # 0.3 * 2000 + 10 * 5 (530-650 * 32 = 20800)
         elif door_rotation_th <= self.door_rotation:
-            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 1000 + (n_step - update) * 1000 # 0.3 * 100 + 10 * 1000 (10030)
+#            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 10 + (n_step - update) * 750 # 0.3 * 2000 + 10 * 10 (700)
+            self.panel_rotation_r =  door_rotation_th * panel_c + panel_b_c * 200 + (n_step - update) * 750 # 0.3 * 2000 + 10 * 10 (700)
             self.success = 1
             print("success", self.success)
 
