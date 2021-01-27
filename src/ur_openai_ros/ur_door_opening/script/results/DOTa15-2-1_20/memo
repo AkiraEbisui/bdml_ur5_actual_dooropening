@@ -1,0 +1,27 @@
+('success', 1)
+('##1 knob_rotation_r', 121.0, 0.9119119144797219)
+('##2 panel_rotation_r', 11100.0, 0.3030130937848773)
+('# torque_y limit2_r', -65)
+('##3 force_limit_r', 0)
+('##4 static_limit_r', 0)
+('# action5 limit_r', 7.81746618040946)
+('# action4 limit_r', 1.411610346809713)
+('# action2 limit_r', 0.3907830757786801)
+('# action1 limit_r', 0.29097698070197575)
+('# action0 limit_r', 0.6363701402099298)
+('##5 action_limit_r.', 10.54720672390976)
+('##6 act_correct_r', 0)
+('##7 catesian_xyz_r', 0.0, 0.0, 0.0)
+('##7 catesian_rpy_r', 0.0, -0.0, 0.0)
+('##7 cartesian_bonus_r', 10)
+('### action_r', 10.54720672390976)
+('### total_compute_rewards', 11231.54720672391)
+#########################################
+('################ success ################', 22)
+#########################################
+('success_times', 78)
+[DEBUG] [1611779043.424819]: Transitioning to ACTIVE (from WAITING_FOR_GOAL_ACK, goal: /ur_gym_16982_1611774523201-13988-1611779043.424)
+[DEBUG] [1611779043.509693]: Transitioning to WAITING_FOR_RESULT (from ACTIVE, goal: /ur_gym_16982_1611774523201-13988-1611779043.424)
+[DEBUG] [1611779043.510611]: Transitioning to DONE (from WAITING_FOR_RESULT, goal: /ur_gym_16982_1611774523201-13988-1611779043.424)
+[78/100]
+

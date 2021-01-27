@@ -1,7 +1,7 @@
 # Algortihm Parameters
 ML:
   seed: 0
-  obs_dim: 44 # 44 or 48 or 100
+  obs_dim: 24 # 44 or 48 or 100
   n_act: 6
   epochs: 10
   hdim: 64
@@ -24,7 +24,7 @@ ML:
   batch_size: 16
 
   nupdates: 3000
-  random_grasp: 0
+  random_grasp: 1
 
 # Input type
 control_type: traj_pos #traj_vel or vel or pos or traj_pos
@@ -117,7 +117,7 @@ observations: # Observations you want to use for the learning
   - torque_x # 3 (24)
   - torque_y
   - torque_z
-  - image_cnn # 20 (1-44)
+#  - image_cnn # 20 (1-44)
 #  - static_taxel # 56
 #  - dynamic_taxel
 #  - nibs_cnn # 20 (2-44)
