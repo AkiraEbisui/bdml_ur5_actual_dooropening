@@ -10,7 +10,7 @@ ML:
   max_std: 1.0
   clip_range: 0.2
 
-  n_step: 32 # 16
+  n_step: 4 # 32
   act_step: 1 # 30
   sub_step1: 3 # 3
   sub_step2: 12 # 3

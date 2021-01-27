@@ -8,6 +8,10 @@ from sklearn.utils import shuffle
 # Tensorflow
 import tensorflow as tf
 
+# CSV
+import csv
+import pprint
+
 # ROS
 import rospy
 import rospkg
@@ -588,6 +592,17 @@ def main():
             plt.draw()
             plt.pause(1e-17)
             plt.savefig("./results/ppo_with_gae_list.png")
+
+            with open('data/reward/sample.csv', 'w') as f:
+                writer = csv.writer(f)
+                writer.writerow(x_data)
+                writer.writerow(y_data)
+                writer.writerow(y_data_10return)
+                writer.writerow(y_data_v)
+                writer.writerow(y_data_p)
+                writer.writerow(y_data_e)
+                writer.writerow(y_data_k)
+                writer.writerow(y_data_d)
 
         if (np.mean(avg_max_knob_rotation_list) > 0.9 and np.mean(avg_max_door_rotation_list) > 2): # Threshold return to success # knob=0.9, panel=0.2 
             print('[{}/{}] return : {:.3f}, value loss : {:.3f}, policy loss : {:.3f}'.format(update,nupdates, np.mean(avg_return_list), np.mean(avg_val_loss_list), np.mean(avg_pol_loss_list)))
