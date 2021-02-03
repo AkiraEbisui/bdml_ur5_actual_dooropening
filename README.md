@@ -73,9 +73,15 @@ source [path/to/demo/project/root]/devel/setup.bash
 roslaunch ur5_demo openai_demo.launch 
 ```
 
-3. Run RL script
+3. Run RL training script
 ```console 
-python ppo_gae_main.py
+python ppo_gae_main.py sys.argv[1]
+```
+*sys.argv[1] is a folder name for saving the result
+
+4. Run RL test script
+```console 
+python ppo_gae_test_main.py sys.argv[1]
 ```
 This will try to move the UR5 and the robotiq gripper to open the door.
-
+*sys.argv[1] is a folder name for saving the result

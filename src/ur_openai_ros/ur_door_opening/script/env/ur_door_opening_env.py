@@ -66,7 +66,9 @@ act_add = rospy.get_param("/ML/act_add")
 random_grasp = rospy.get_param("/ML/random_grasp")
 
 dt_act1 = rospy.get_param("/act_params/dt_act1")
+dt_act1b = rospy.get_param("/act_params/dt_act1b")
 dt_act2 = rospy.get_param("/act_params/dt_act2")
+dt_act2b = rospy.get_param("/act_params/dt_act2b")
 change_sub = rospy.get_param("/act_params/change_sub")
 sub_a0 = rospy.get_param("/act_params/sub_a0")
 sub_a1 = rospy.get_param("/act_params/sub_a1")
@@ -787,6 +789,12 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
 #            self._joint_traj_pubisher.MoveItCommand(self.close_door_xyz)
             self._joint_traj_pubisher.MoveItJointTarget(self.init_pos1)
 
+    def last_reset(self):
+        self.gripper.goto_gripper_pos(self.init_grp_pose1, False)
+        time.sleep(1)
+        self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_close_door_pose)
+        self._joint_traj_pubisher.FollowJointTrajectoryCommand_reset(self.arr_init_pos1)
+
     # Resets the state of the environment and returns an initial observation.
     def reset(self):
 	# 1st: Go to initial position
@@ -975,9 +983,11 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         if arr_current_joint_value[5] < self.wr3_init_value2 + change_sub:
             self.sub_step = sub_step1
             self.dt_act = dt_act1
+            self.dt_act_b = dt_act1b
         else:
             self.sub_step = sub_step2
             self.dt_act = dt_act2
+            self.dt_act_b = dt_act2b
 
         for x in range(1, self.sub_step + 1):
             self.cartesian_flag = 0
@@ -1138,6 +1148,16 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
                                 self.min_static_taxel1 = (self.sns_1_Indiv[z] - self.sns_1_Indiv_ini[z]) * self.nibs_indiv_n
                             if self.max_static_taxel1 < (self.sns_1_Indiv[z] - self.sns_1_Indiv_ini[z]) * self.nibs_indiv_n:
                                 self.max_static_taxel1 = (self.sns_1_Indiv[z] - self.sns_1_Indiv_ini[z]) * self.nibs_indiv_n
+                    else:
+                        for y in range(0, 28):
+                            if self.min_static_taxel0 > (self.static_taxel[0].values[y] - self.static_taxel_ini[0].values[y]) * self.taxel_n:
+                                self.min_static_taxel0 = (self.static_taxel[0].values[y] - self.static_taxel_ini[0].values[y]) * self.taxel_n
+                            if self.min_static_taxel1 > (self.static_taxel[1].values[y] - self.static_taxel_ini[1].values[y]) * self.taxel_n:
+                                self.min_static_taxel1 = (self.static_taxel[1].values[y] - self.static_taxel_ini[1].values[y]) * self.taxel_n
+                            if self.max_static_taxel0 < (self.static_taxel[0].values[y] - self.static_taxel_ini[0].values[y]) * self.taxel_n:
+                                self.max_static_taxel0 = (self.static_taxel[0].values[y] - self.static_taxel_ini[0].values[y]) * self.taxel_n
+                            if self.max_static_taxel1 < (self.static_taxel[1].values[y] - self.static_taxel_ini[1].values[y]) * self.taxel_n:
+                                self.max_static_taxel1 = (self.static_taxel[1].values[y] - self.static_taxel_ini[1].values[y]) * self.taxel_n
 
                 if self.min_taxel0 > self.min_static_taxel0:
                     self.min_taxel0 = self.min_static_taxel0
@@ -1256,7 +1276,7 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         print("success_times", self.success_times)
 
         if self.act_end == 1:
-            self._act(self.previous_action, self.dt_act)
+            self._act(self.previous_action, self.dt_act_b)
 
         return observation, reward, done, {}
 
@@ -1407,12 +1427,15 @@ class URSimDoorOpening(robot_gazebo_env_goal.RobotGazeboEnv):
         print("##3 force_limit_r", self.force_limit_r)
 
         #4 release the knob(-)
-        if self.min_static_taxel0 < self.min_static_limit or self.min_static_taxel1 < self.min_static_limit:
-            min_static_limit_r = - (taxel_c * (n_step - update) / n_step + taxel_c)
-            print("# min_static_limit_r", min_static_limit_r)
-        elif self.max_static_taxel0 > self.max_static_limit or self.max_static_taxel1 > self.max_static_limit:
-            max_static_limit_r = - (taxel_c * (n_step - update) / n_step + taxel_c)
-            print("# max_static_limit_r", max_static_limit_r)
+        for obs_name in self.observations:
+             if obs_name == "image_cnn" or "nibs_cnn" or "nibs_robotiq_cnn":
+                if self.min_static_taxel0 < self.min_static_limit or self.min_static_taxel1 < self.min_static_limit:
+                    min_static_limit_r = - (taxel_c * (n_step - update) / n_step + taxel_c)
+                    print("# min_static_limit_r", min_static_limit_r)
+                elif self.max_static_taxel0 > self.max_static_limit or self.max_static_taxel1 > self.max_static_limit:
+                    max_static_limit_r = - (taxel_c * (n_step - update) / n_step + taxel_c)
+                    print("# max_static_limit_r", max_static_limit_r)
+
         self.static_limit_r = min_static_limit_r + max_static_limit_r
         print("##4 static_limit_r", self.static_limit_r)
 

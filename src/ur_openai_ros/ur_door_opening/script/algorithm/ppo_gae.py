@@ -6,6 +6,10 @@ from sklearn.utils import shuffle
 # ROS
 import rospy
 
+# CSV
+import csv
+import sys
+
 import os
 import logging
 import warnings
@@ -50,7 +54,7 @@ class PPOGAEAgent(object):
         self.counter = 0
 
         # load the parameters 
-        # self.saver.restore(self.sess, './results/ppo_with_gae_model-10')
+        self.saver.restore(self.sess, './results/ppo_with_gae_model-20')
 
     def _build_graph(self):
         self.g = tf.Graph()
@@ -344,7 +348,7 @@ class PPOGAEAgent(object):
 	self.counter = self.counter + 1
 
         if (self.counter%save_step) ==0:
-            self.saver.save(self.sess, './results/ppo_with_gae_model', global_step= self.counter)
+            self.saver.save(self.sess, './results/' + sys.argv[1] + '/ppo_with_gae_model', global_step= self.counter)
 
         return policy_loss, value_loss, kl, entropy
     
