@@ -44,11 +44,7 @@ maxlen_num = rospy.get_param("/ML/maxlen_num")
 random_grasp = rospy.get_param("/ML/random_grasp")
 
 agent = PPOGAEAgent(obs_dim, n_act, epochs, hdim, policy_lr, value_lr, max_std, clip_range, seed)
-#agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=obs_dim, policy_lr=3e-3, value_lr=1e-3, max_std=1.0, clip_range=0.2, seed=seed)
 
-'''
-PPO Agent with Gaussian policy
-'''
 def run_episode(env, animate=False): # Run policy and collect (state, action, reward) pairs
     obs = env.reset()
     observes, actions, rewards, infos = [], [], [], []
@@ -449,7 +445,6 @@ def main():
         add_gae(trajectories, gamma, lam)
         add_rets(trajectories, gamma)
         observes, actions, advantages, returns = build_train_set(trajectories)
-
         
 #        print ("----------------------------------------------------")
 #        print ("update: ", update)
@@ -460,7 +455,6 @@ def main():
 #        print ("actions: ", actions.shape, type(actions)) 		# ('actions: ',    (n_step, 6),  <type 'numpy.ndarray'>)
 #        print ("----------------------------------------------------")
         
-
         pol_loss, val_loss, kl, entropy = agent.update(observes, actions, advantages, returns, batch_size=batch_size)
 
         success_x_hist = []

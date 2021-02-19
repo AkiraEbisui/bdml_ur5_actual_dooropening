@@ -13,8 +13,9 @@ RL code for dooropening task with ur_driver
       https://www.microstrain.com/inertial/3dm-gx3-25
     + USB Output 9-axis IMU sensor module
       http://wiki.ros.org/rt_usb_9axisimu_driver
-    + Robotiq sensors
+    + Robotiq sensor
     + Robotiq force-torque sensor(FT-300)
+    + Nibs sensor
 
 What's in side the package:
 This repository contains a whole catkin workspace. Within it there are eight
@@ -27,7 +28,8 @@ ROS packages.
 6. microstrain_3dmgx2_imu (for 3DM-GX3-25 imu sensor)
 7. rt_usb_9axismu_driver (for USB Output 9-axis IMU sensor module)
    https://github.com/rt-net/rt_usb_9axisimu_driver
-8. tactilesensors4 (for Robotiq sensors)
+8. tactilesensors4 (for rRobotiq sensors)
+9. tae_psoc (for Nibs sensors)
 
 ## Make virtual env:
 1. Make Virtual Env in python2
@@ -68,7 +70,7 @@ catkin build
 source [path/to/demo/project/root]/devel/setup.bash
 ```
 
-2. Launch ur5, robotiq gripper, IMU sensors, robotiq-ft-sensor, and robotiq tactile sensors connection
+2. Launch ur5, robotiq gripper, IMU sensors, robotiq-ft-sensor, Robotiq tactile sensors, and Nibs tactile sensors connection
 ```console 
 roslaunch ur5_demo openai_demo.launch 
 ```
@@ -83,5 +85,6 @@ python ppo_gae_main.py sys.argv[1]
 ```console 
 python ppo_gae_test_main.py sys.argv[1]
 ```
+*Put .data-00000-of-00001, .index, and, .meta files in "results" folder to load. 
 This will try to move the UR5 and the robotiq gripper to open the door.
 *sys.argv[1] is a folder name for saving the result

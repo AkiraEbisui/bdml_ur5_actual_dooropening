@@ -44,11 +44,7 @@ maxlen_num = 1
 random_grasp = rospy.get_param("/ML/random_grasp")
 
 agent = PPOGAEAgent(obs_dim, n_act, epochs, hdim, policy_lr, value_lr, max_std, clip_range, seed)
-#agent = PPOGAEAgent(obs_dim, n_act, epochs=10, hdim=obs_dim, policy_lr=3e-3, value_lr=1e-3, max_std=1.0, clip_range=0.2, seed=seed)
 
-'''
-PPO Agent with Gaussian policy
-'''
 def run_episode(env, animate=False): # Run policy and collect (state, action, reward) pairs
     obs = env.reset()
     observes, actions, rewards, infos = [], [], [], []
@@ -85,14 +81,6 @@ def run_policy(env, episodes): # collect trajectories
                       'actions': actions,
                       'rewards': rewards,
                       'infos': infos} 
-        
-#        print ("######################run_policy######################")
-#        print ("observes: ", observes.shape, type(observes)) 		#(n_step, 15), <type 'numpy.ndarray'>
-#        print ("actions: ", actions.shape, type(actions))  		#(n_step,  6), <type 'numpy.ndarray'>
-#        print ("rewards: ", rewards.shape, type(rewards))  		#(n_step,   ), <type 'numpy.ndarray'>
-#        print ("trajectory: ", len(trajectory), type(trajectory)) 	#(      ,  4), <type 'dict'>
-#        print ("#####################run_policy#######################")
-        
         trajectories.append(trajectory)
     return trajectories
         
@@ -108,12 +96,6 @@ def add_gae(trajectories, gamma, lam): # generalized advantage estimation (for t
         values = trajectory['values']
         
         # temporal differences
-        
-#        print ("###############################add_gae###########################")
-#        print ("rewards: ", rewards.shape, type(rewards))  	# (n_step, ), <type 'numpy.ndarray'>
-#        print ("values): ", values.shape, type(values))  	# (n_step, ), <type 'numpy.ndarray'>
-#        print ("###############################add_gae###########################")
-        
         tds = rewards + np.append(values[1:], 0) * gamma - values
         advantages = np.zeros_like(tds)
         advantage = 0
@@ -445,19 +427,6 @@ def main():
         add_rets(trajectories, gamma)
         observes, actions, advantages, returns = build_train_set(trajectories)
 
-        
-#        print ("----------------------------------------------------")
-#        print ("update: ", update)
-#        print ("updates: ", nupdates)
-#        print ("observes: ", observes.shape, type(observes)) 		# ('observes: ',   (n_step, 15), <type 'numpy.ndarray'>)
-#        print ("advantages: ", advantages.shape, type(advantages))	# ('advantages: ', (n_step,),    <type 'numpy.ndarray'>)
-#        print ("returns: ", returns.shape, type(returns)) 		# ('returns: ',    (n_step,),    <type 'numpy.ndarray'>)
-#        print ("actions: ", actions.shape, type(actions)) 		# ('actions: ',    (n_step, 6),  <type 'numpy.ndarray'>)
-#        print ("----------------------------------------------------")
-        
-
-#        pol_loss, val_loss, kl, entropy = agent.update(observes, actions, advantages, returns, batch_size=batch_size)
-
         entropy = 0
         kl = 0
         pol_loss = 0
@@ -493,11 +462,6 @@ def main():
 
         success_times = env.success_times
         success_rate = float(0)
-
-#        if update < 10:
-#            success_rate = float(success_times) / update
-#        else:
-#            success_rate = (float(success_times) - success10_list[-9]) / 10
         success_rate = float(success_times) / update
 
         avg_pol_loss_list.append(pol_loss)
@@ -755,12 +719,6 @@ def main():
                 writer.writerow(y_data_success) #55
                 writer.writerow(y_data_success_rate) #56
     env.last_reset()
-#        if (np.mean(avg_max_knob_rotation_list) > 0.9 and np.mean(avg_max_door_rotation_list) > 2): # Threshold return to success # knob=0.9, panel=0.2 
-#            print('[{}/{}] return : {:.3f}, value loss : {:.3f}, policy loss : {:.3f}'.format(update,nupdates, np.mean(avg_return_list), np.mean(avg_val_loss_list), np.mean(avg_pol_loss_list)))
-#            print('The problem is solved with {} episodes'.format(update*episode_size))
-#           break
-
-        #env.close() # rospy.wait_for_service('/pause_physics') -> raise ROSInterruptException("rospy shutdown")
 
 if __name__ == '__main__':
     main()

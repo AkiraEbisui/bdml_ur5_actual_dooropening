@@ -34,15 +34,10 @@ save_step = rospy.get_param("/ML/save_step")
 
 class PPOGAEAgent(object): 
     def __init__(self, obs_dim, n_act, clip_range, epochs, policy_lr, value_lr, hdim, max_std, seed):
-#    def __init__(self, obs_dim, n_act, clip_range=0.2, epochs=10, policy_lr=3e-3, value_lr=7e-4, hdim=64, max_std=1.0, seed=0):
-        
         self.seed=seed
-        
         self.obs_dim = obs_dim
         self.act_dim = n_act
-        
         self.clip_range = clip_range
-        
         self.epochs = epochs
         self.policy_lr = policy_lr
         self.value_lr = value_lr
@@ -54,7 +49,7 @@ class PPOGAEAgent(object):
         self.counter = 0
 
         # load the parameters 
-        self.saver.restore(self.sess, './results/ppo_with_gae_model-20')
+        self.saver.restore(self.sess, './results/ppo_with_gae_model-10')
 
     def _build_graph(self):
         self.g = tf.Graph()
@@ -164,10 +159,8 @@ class PPOGAEAgent(object):
         
         # REINFORCE OBJECTIVE
         ratio = tf.exp(self.logp - self.logp_old)
-#        print("ratio, self.logp, self.logp_old", ratio, self.logp, self.logp_old)
         cliped_ratio = tf.clip_by_value(ratio,clip_value_min=1-self.clip_range,clip_value_max=1+self.clip_range)
         self.policy_loss = -tf.reduce_mean(tf.minimum(self.adv_ph*ratio,self.adv_ph*cliped_ratio)) + 1e-7 # add 1e-10 for preventing from "nan"
-#        print("cliped_ratio, self.policy_loss", cliped_ratio, self.policy_loss)
         
         # POLICY OPTIMIZER
         self.pol_var_list = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope="policy")
@@ -197,11 +190,7 @@ class PPOGAEAgent(object):
     def get_action(self, obs): # SAMPLE FROM POLICY
         feed_dict = {self.obs_ph: obs}
         sampled_action = self.sess.run(self.sample_action,feed_dict=feed_dict)
-        return sampled_action[0] / act_step # 100(~20200904), 300(20200905~), 500(~20200909), 2000(20200909~)
-# /10:   [action]', array([-0.01992016,  0.10500866,  0.00853405,  0.02726892, -0.12092558, 0.02108609])
-# /500:   [action]', array([0.0010571,  -0.00022959,  -0.00092911,  -0.00055518, -0.0012934, -0.001190])  -> Maxdelta force(6.5, 1.8, 16.7), torque(0.65, 4.4, 0.17)
-# /1000: [action]', array([-1.9920163e-04,  1.0500867e-03,  8.5340682e-05,  2.7268915e-04, -1.2092555e-03,  2.1086067e-04])
-#        return sampled_action[0]  # default
+        return sampled_action[0] / act_step
     
     def control(self, obs): # COMPUTE MEAN
         feed_dict = {self.obs_ph: obs}
@@ -219,18 +208,18 @@ class PPOGAEAgent(object):
             conv1_f = tf.Variable(tf.truncated_normal([2, 2, 1, 32], stddev=0.1))      # filter hight, width, channel, number of filter(output dimension)
             conv1_c = tf.nn.conv2d(img, conv1_f, strides=[1, 1, 1, 1], padding='SAME') # strides: batch direct,  height direct, width direct, channel direct
             conv1_b = tf.Variable(tf.constant(0.1, shape=[32]))                        # shape=[output dimension]
-            conv1_o = tf.nn.relu(conv1_c + conv1_b)                                    # 4x7 padding-> 6x9 conv-> 5x8 (5x8x32=1280)
+            conv1_o = tf.nn.relu(conv1_c + conv1_b)                                    
 
         # pool layer1
         with tf.name_scope('pool1'):
             pool1_o = tf.nn.max_pool(conv1_o, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='SAME') # ksize: batch direct,  height direct, width direct, channel direct
-                                                                                                        # 5x8 padding-> 7x10 pool-> 6x9 (6x9x32=1792)
+                                                                                                        
         # convolution layer2
         with tf.name_scope('conv2'):
             conv2_f = tf.Variable(tf.truncated_normal([2, 2, 32, 64], stddev=0.1))
             conv2_c = tf.nn.conv2d(pool1_o, conv2_f, strides=[1, 1, 1, 1], padding='SAME')
             conv2_b = tf.Variable(tf.constant(0.1, shape=[64]))
-            conv2_o = tf.nn.relu(conv2_c + conv2_b)                                    # 6x9 padding-> 8x11 conv-> 7x10 (7x10x64=4480)
+            conv2_o = tf.nn.relu(conv2_c + conv2_b)
             #print("conv2_o", conv2_o) # <tf.Tensor 'conv2/Relu:0' shape=(1, 7, 4, 64) dtype=float32>
 
         # pool layer 2
@@ -240,7 +229,7 @@ class PPOGAEAgent(object):
 
         # flatten layer
         with tf.name_scope('flatten'):
-            flatten_o = tf.reshape(pool2_o, [-1, 7 * 4 * 64]) # 8 * 11 * 64 = 5632 
+            flatten_o = tf.reshape(pool2_o, [-1, 7 * 4 * 64])  
 
         # fully connected layer
         with tf.name_scope('fully_connected'):
@@ -265,28 +254,28 @@ class PPOGAEAgent(object):
             conv1_f = tf.Variable(tf.truncated_normal([2, 2, 1, 32], stddev=0.1))      # filter hight, width, channel, number of filter(output dimension)
             conv1_c = tf.nn.conv2d(img, conv1_f, strides=[1, 1, 1, 1], padding='SAME') # strides: batch direct,  height direct, width direct, channel direct
             conv1_b = tf.Variable(tf.constant(0.1, shape=[32]))                        # shape=[output dimension]
-            conv1_o = tf.nn.relu(conv1_c + conv1_b)                                    # 3x3 padding-> 5x5 conv-> 4x4 (4x4x32=512)
+            conv1_o = tf.nn.relu(conv1_c + conv1_b)                                    
 
         # pool layer1
         with tf.name_scope('pool1'):
             pool1_o = tf.nn.max_pool(conv1_o, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='SAME') # ksize: batch direct,  height direct, width direct, channel direct
-                                                                                                        # 4x4 padding-> 6x6 pool-> 5x5 (5x5x32=800)
+                                                                                                        
         # convolution layer2
         with tf.name_scope('conv2'):
             conv2_f = tf.Variable(tf.truncated_normal([2, 2, 32, 64], stddev=0.1))
             conv2_c = tf.nn.conv2d(pool1_o, conv2_f, strides=[1, 1, 1, 1], padding='SAME')
             conv2_b = tf.Variable(tf.constant(0.1, shape=[64]))
-            conv2_o = tf.nn.relu(conv2_c + conv2_b)                                    # 5x5 padding-> 7x7 conv-> 6x6 (6x6x64=2304)
+            conv2_o = tf.nn.relu(conv2_c + conv2_b)
             #print("conv2_o", conv2_o) # <tf.Tensor 'conv2/Relu:0' shape=(1, 7, 4, 64) dtype=float32>
 
         # pool layer 2
         with tf.name_scope('pool2'):
-            pool2_o = tf.nn.max_pool(conv2_o, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='SAME')  # 6x6 padding-> 8x8 pool-> 7x7 (7x7x64=3136)
+            pool2_o = tf.nn.max_pool(conv2_o, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='SAME') 
             #print("pool2_o", pool2_o) # <tf.Tensor 'pool2/MaxPool:0' shape=(1, 7, 4, 64) dtype=float32>
 
         # flatten layer
         with tf.name_scope('flatten'):
-            flatten_o = tf.reshape(pool2_o, [-1, 6 * 6 * 64]) # 1 * 3 * 64 = 192 or 6 * 6 * 64 = 2304 
+            flatten_o = tf.reshape(pool2_o, [-1, 6 * 6 * 64]) 
 
         # fully connected layer
         with tf.name_scope('fully_connected'):
@@ -340,9 +329,6 @@ class PPOGAEAgent(object):
              self.value_lr_ph: self.value_lr}
          
         policy_loss, value_loss, kl, entropy  = self.sess.run([self.policy_loss, self.value_loss, self.kl, self.entropy], feed_dict)
-#        print("old_std, log_std_old", self.old_std_ph, tf.math.log(self.old_std_ph))
-#        print("std, log_std_new", self.std, tf.math.log(self.std))
-#        print("frac_std_old_new", self.old_std_ph/self.std)
         
         # save the parameters
 	self.counter = self.counter + 1
